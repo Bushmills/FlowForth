@@ -7,8 +7,18 @@
 # problems found:
 #   empty lines with white spaces rather than just linefeeds cause compilation error
 
-version="0.16"	# 20201215ls v0.16: 	added literals. VM checks for code files matching.
-		#			removed bug with non-empty lines containing white space only.
+# bumping version number requires change to VM too:
+# generated programs contain this version. VM compares it against its own version,
+# which must be identical. This prevents execution of programs not compatible with
+# the VM any longer or have never been.
+# version is changed when VM, compiler or lib changes render programs incompatible.
+# Otherwise is subversion bumped. VM doesn't check for subversion.
+version="0.16"	
+subversion="2"
+# 20201217ls v0.16.2	detect number, no need for preceding them with lit
+#			preparing removal of second symbol table
+# 20201215ls v0.16.1 	added literals. VM checks for code files matching.
+#			removed bug with non-empty lines containing white space only.
 #version=0.15"  # 20201214ls v0.15: added library, flow control.
 
 
