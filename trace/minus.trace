@@ -33,24 +33,3 @@ unnest:   ip = 150      (continue at restored ip)
 next:     ip: 151, w: 30, m[w]: negate   (depth: 1, tos: 0)
 next:     ip: 152, w: 146, m[w]: dovar   (depth: 1, tos: 0)
 next:     ip: 153, w: 21, m[w]: +!   (depth: 2, tos: 147)
-next:     ip: 154, w: 4, m[w]: unnest
-unnest:   ip = 179      (continue at restored ip)
-next:     ip: 180, w: 154, m[w]: nest
-nest:     ip (old): 180, w: 154 --> ip (new): 155, w: 154
-next:     ip: 156, w: 14, m[w]: depth
-next:     ip: 157, w: 146, m[w]: dovar   (depth: 1, tos: 0)
-next:     ip: 158, w: 19, m[w]: @   (depth: 2, tos: 147)
-next:     ip: 159, w: 23, m[w]: or   (depth: 2, tos: 0)
-next:     ip: 160, w: 144, m[w]: doconst   (depth: 1, tos: 0)
-next:     ip: 161, w: 36, m[w]: led   (depth: 2, tos: 1)
-next:     ip: 162, w: 142, m[w]: doconst   (depth: 1, tos: 0)
-next:     ip: 163, w: 12, m[w]: swap   (depth: 2, tos: 65280)
-next:     ip: 164, w: 8, m[w]: branch0   (depth: 2, tos: 0)
-branch:   ip: 167 (destination)
-next:     ip: 168, w: 36, m[w]: led   (depth: 1, tos: 65280)
-next:     ip: 169, w: 4, m[w]: unnest
-unnest:   ip = 180      (continue at restored ip)
-next:     ip: 181, w: 4, m[w]: unnest
-unnest:   ip = 170      (continue at restored ip)
-next:     ip: 171, w: 6, m[w]: bye
-VM halt, return code 0.
