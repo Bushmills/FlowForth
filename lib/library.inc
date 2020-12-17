@@ -166,5 +166,7 @@ semicolon
 
 
 label cold			# cold start entry point (resolves vector at addr 0)
+[
    main				# call main program
    bye				# terminate vm
+]
