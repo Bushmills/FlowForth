@@ -6,8 +6,7 @@ Currently does the VM look like this:
 
 ![FlowForth VM](http://fachkurs.de/vm/vm.jpg)
 
-A better quality image can be seen here:   
-[FlowForth VM (pdf)](http://fachkurs.de/vm/vm.pdf)  
+A better quality image can be seen here:  [FlowForth VM (pdf)](http://fachkurs.de/vm/vm.pdf)  
 
 Flow starting points are on the left. One for manually launching the VM, with a file selector popping up.  
 The other starting point monitors a file, and is triggered when that file is written to. From that file is  
