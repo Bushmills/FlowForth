@@ -28,7 +28,7 @@ subversion="1"
 srcext="prog"							# source files default extension
 codeext="code"							# compiler output files extension
 
-base="/home/l/FlowForth"					# subdirectories relative to $base
+base="$HOME/FlowForth"						# subdirectories relative to $base
 primitives="$base/lib/primitives.inc"				# location and name of primitives list
 library="$base/lib/library.inc"					# location and name of library
 
@@ -60,6 +60,11 @@ error()  {
    output="/dev/null"						# prevent code generation
 }
 
+fail()  {
+   error "$@"
+   exit
+}
+
 needs()     { error "${FUNCNAME[2]} needs $1"; }
 needarg()   { needs "an argument" "$@"; }
 needname()  { needs "needs name argument"; }
@@ -69,13 +74,14 @@ needfile()  { needs "a file name argument"; }
 
 
 # --- 
-[[ -f "$primitives" ]] || error "no primitives table"		# refuse execution without primitives
-[[ -z "$program" ]] && error "missing program name"		# refuse compilation without file name given
+[[ -d "$base" ]] || fail "base directory ($base) not found or not accessable"
+[[ -f "$primitives" ]] || fail "no primitives table"		# refuse execution without primitives
+[[ -z "$program" ]] && fail "missing program name"		# refuse compilation without file name given
 [[ "${program##*.}" == "$codeext" ]] &&				# don't clobber source if extension matches code
-   error "source extension may not be $codeext"
+   fail "source extension may not be $codeext"
 [[ ! -f "$program" && -f "$program.$srcext" ]] &&		# conditionally append default source extension
    program+=".$srcext"
-[[ -f "$program" ]] || error "$program not found"
+[[ -f "$program" ]] || fail "$program not found"
 output="${program%.*}.$codeext"					# change extension of output file
 sources="$library $program"					# files included by compiler run
 
