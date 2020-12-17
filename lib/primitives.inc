@@ -3,6 +3,7 @@ noop
 bye		# terminate the VM, end flow
 branch		# unconditional branch
 branch0		# conditional branch
+execute
 literal
 dup
 drop

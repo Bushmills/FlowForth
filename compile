@@ -13,8 +13,10 @@
 # the VM any longer or have never been.
 # version is changed when VM, compiler or lib changes render programs incompatible.
 # Otherwise is subversion bumped. VM doesn't check for subversion.
-version="0.16"	
-subversion="2"
+version="0.17"	
+subversion="1"
+# 20201217ls v0.17.0	compiler:  added [tick] and execute.
+#			VM: added execute primitive, speeded up program loading
 # 20201217ls v0.16.2	detect number, no need for preceding them with lit
 #			preparing removal of second symbol table
 # 20201215ls v0.16.1 	added literals. VM checks for code files matching.
@@ -195,6 +197,15 @@ lit() {								# compile a literal (an in-code number)
    hcompile "${find[literal]}"
    hcompile "$1"
 }
+
+headerflag["[tick]"]=$immediate
+directive [tick]
+[tick]() {								# compile a literal (an in-code number)
+   [[ -z "$1" ]] && needarg
+   hcompile "${find[literal]}"
+   hcompile "${find[$1]}"
+}
+
 
 hpush()  {
    hdepth="${#h[@]}"

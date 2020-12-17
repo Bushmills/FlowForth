@@ -1,0 +1,11 @@
+constant red 16711680
+
+colon redled
+   red
+   led
+semicolon
+
+colon main
+   [tick] redled
+   execute
+semicolon

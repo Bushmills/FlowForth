@@ -82,6 +82,12 @@ colon _next	#			i a r
    >r		#			r | a
 semicolon
 
+colon ?exit
+   _if		# by trashing the return address, exit will not return to
+      rdrop 	# where it was called, but instead to where the routine
+   _then	# one level above was called.
+semicolon	
+
 
 # yet untested comparisons, therefore these definitions are for now commented out:
 colon <>
