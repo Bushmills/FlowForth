@@ -46,11 +46,11 @@ error()  {
    output="/dev/null"						# prevent code generation
 }
 
-needs()     { error "$2 needs $1"; }
+needs()     { error "${FUNCNAME[2]} needs $1"; }
 needarg()   { needs "an argument" "$@"; }
-needname()  { needs "needs name argument" "$@"; }
-needvalue() { needs "needs value argument" "$@"; }
-needfile()  { needs "a file name argument" "$@"; }
+needname()  { needs "needs name argument"; }
+needvalue() { needs "needs value argument"; }
+needfile()  { needs "a file name argument"; }
 
 
 
@@ -74,7 +74,7 @@ hcompile()  { m[dp++]="$1"; }					# "host compile", write arg into target progra
 
 forwardref()  {							# by compiling the symbol name which can't yet be
    arg="$1"							# resolved into target space, and adding the
-   [[ -z "$arg" ]] && needarg "forwardref"			# compilation address to a list of fwd refs,
+   [[ -z "$arg" ]] && needarg				# compilation address to a list of fwd refs,
    forwardrefs[${#forwardrefs[@]}]="$dp"			# we can later hunt these references and resolve
    hcompile "$arg"						# them. 
 }
@@ -105,25 +105,26 @@ directive()  {
   directive["$1"]="$1"
 }   
 
-# i'd like to eliminate this maintaining two distinct lists of similar data.
-header() {
-   find["$1"]="$dp"
-   label "$1"
-}
 
 
 ### --- compiling directives ---
 
-
 directive label
 label()  {
-   [[ -z "$1" ]] && needname "label"
+   [[ -z "$1" ]] && needname
    symbol["$1"]="$dp"						# just a name in $find, no runtime, no allocation
+}
+
+# i'd like to eliminate this maintaining two distinct lists of similar data.
+header() {
+   [[ -z "$1" ]] && needname 
+   find["$1"]="$dp"
+   label "$1"
 }
 
 directive create
 create()  {							# header with dovar runtime and no allocation
-   [[ -z "$1" ]] && needname "create"
+   [[ -z "$1" ]] && needname
    header "$1"
    hcompile "dovar"
 }
@@ -133,15 +134,15 @@ create()  {							# header with dovar runtime and no allocation
 # variable foo bla						# create variable foo, initialized to symbol bla or forward reference
 directive variable
 variable()  {							# variable: dovar runtime with 1 cell allocated
-   [[ -z "$1" ]] && needname "variable"
+   [[ -z "$1" ]] && needname
    create "$1"
    href "${2:-0}"
 }
 
 directive constant
 constant()  {							# constant name value
-   [[ -z "$1" ]] && needname "constant"
-   [[ -z "$2" ]] && needvalue "constant $1"
+   [[ -z "$1" ]] && needname
+   [[ -z "$2" ]] && needvalue "$1"
    header "$1"
    hcompile "doconst"
    href "$2"
@@ -151,7 +152,7 @@ compiling=0
 
 directive colon
 colon()  {
-   [[ -z "$1" ]] && needname "colon"
+   [[ -z "$1" ]] && needname
    header "$1"
    hcompile "nest"						# compile nest runtime
    compiling=1
@@ -165,7 +166,7 @@ semicolon()  {
 
 directive lit
 lit() {								# compile a literal (an in-code number)
-   [[ -z "$1" ]] && needarg "lit"
+   [[ -z "$1" ]] && needarg
    hcompile "${find[literal]}"
    hcompile "$1"
 }
@@ -242,7 +243,7 @@ _then()  {
 
 directive allot
 allot()  {
-   [[ -z "$1" ]] && needvalue "allot"
+   [[ -z "$1" ]] && needvalue
    (( dp+="$1" ))						# reserve a number of cells by advancing compilation pointer
 }
 
@@ -260,7 +261,7 @@ directive .
 
 directive include
 include()  {
-   [[ -z "$1" || ! -f "$1" ]] && needfile "include"
+   [[ -z "$1" || ! -f "$1" ]] && needfile
    source "$1"
 }
 
