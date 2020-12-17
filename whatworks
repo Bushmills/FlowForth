@@ -1,0 +1,31 @@
+#--- tested ---
+vm:		hi level code nesting
+		colon definitions
+		constant
+		literal
+stacks:		dup drop over swap ?dup 2dup 2drop depth nip tuck
+		>r r@ r> rdrop
+memory:		@ ! +! here allot
+arithmetics:	+ - * / negate abs 1+ 1- min max
+compare:	< 0= 0< = <> > >= <=
+bool:		and or xor invert
+flow control:	begin again
+		begin until
+		begin while repeat
+		if then
+		if else then
+		bye
+		exit						# hi level library addition
+i/o:		led
+
+
+
+#--- not yet tested ---
+
+
+#--- missing ---
+comparison:	u< 
+logic:		lshift rshift
+stacks:		rdepth
+arithmetics:	mod umin umax 		# could be library additions
+control:	execute

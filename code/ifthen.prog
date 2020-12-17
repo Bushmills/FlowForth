@@ -1,0 +1,22 @@
+
+colon main
+   lit 123
+   false
+   _if
+      drop
+      lit 456
+   _then
+   lit 123
+   expected
+
+   lit 123
+   true
+   _if
+      drop
+      lit 456
+   _then
+   lit 456
+   expected
+
+   check
+semicolon

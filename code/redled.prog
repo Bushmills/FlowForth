@@ -1,0 +1,10 @@
+constant red 16711680
+
+colon main
+   lit 123
+   red
+   led
+   lit 123
+   expected
+   check
+semicolon

@@ -1,0 +1,14 @@
+constant 16 16
+
+colon main
+   here				# read dictionary pointer
+   16
+   +
+
+   16
+   allot			# reserve 10 cells
+
+   here
+   expected
+   check
+semicolon

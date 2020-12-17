@@ -1,0 +1,10 @@
+constant white -1
+
+colon main
+   lit 123
+   white
+   led
+   lit 123
+   expected
+   check
+semicolon

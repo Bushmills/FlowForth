@@ -1,0 +1,18 @@
+variable foo 123
+colon main
+   foo
+   @
+   lit 123
+   expected
+
+   lit 456
+   foo
+   !
+
+   foo
+   @
+   lit 456
+   expected
+
+   check
+semicolon

@@ -1,0 +1,10 @@
+test untested primitives
+add missing primitives
+
+VM:
+	run time code for do, loop, +loop, leave
+	think about console i/o
+
+compile:
+	several words per line
+	detect number, avoid need for preceding with lit

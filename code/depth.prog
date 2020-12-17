@@ -1,0 +1,15 @@
+colon main
+   lit 10
+   lit 20
+   lit 30
+   depth
+   lit 3
+   expected
+   lit 30
+   expected
+   lit 20
+   expected
+   lit 10
+   expected
+   check
+semicolon

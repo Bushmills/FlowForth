@@ -1,0 +1,7 @@
+constant black 1
+
+colon main
+   black
+   led
+   check
+semicolon

@@ -1,0 +1,22 @@
+
+colon main
+   false
+   _if
+      lit 123
+   _else
+      lit 456
+   _then
+   lit 456
+   expected
+
+   true
+   _if
+      lit 123
+   _else
+      lit 456
+   _then
+   lit 123
+   expected
+
+   check
+semicolon

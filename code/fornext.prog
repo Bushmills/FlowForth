@@ -1,0 +1,15 @@
+colon main
+   0
+   lit 4
+   _for
+      lit 2
+       +
+      lit 3
+      _for
+        1+
+      _next
+   _next
+   lit 20
+   expected	# 8 incs by outer, 12 by inner loop
+   check
+semicolon

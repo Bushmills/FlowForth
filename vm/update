@@ -1,0 +1,10 @@
+#!/bin/bash
+
+proto="https:"
+srv="llamalab.com"
+path="automate/community/api/v1/flows/37943/data"
+file="Virtual+machine.flo"
+url="$proto//$srv/$path/$file"
+
+[[ -f "$file" ]] && mv "$file" "$file.prev"
+wget "$url"

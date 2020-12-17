@@ -1,0 +1,14 @@
+
+colon main
+   lit -5
+   abs
+   lit 5
+   expected
+
+   lit 3
+   abs
+   lit 3
+   expected
+
+   check
+semicolon

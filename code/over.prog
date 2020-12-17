@@ -1,0 +1,20 @@
+
+colon main
+   1		# no need for lit because 1 is a constant, defined in library
+   lit 2	# in later versions, the source parser will try to treat a
+   lit 3	# string as number when it wasn't found in dictionary, making
+   over		# explicite "lit" unnecessary
+   lit 2
+   expected
+   lit 3
+   expected
+   over
+   1
+   expected
+   lit 2
+   expected
+   1
+   expected
+
+   check
+semicolon

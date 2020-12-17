@@ -1,0 +1,36 @@
+
+colon main
+  lit 100
+  foo1
+  lit 600
+  expected
+  lit 500
+  expected
+  lit 400
+  expected
+  lit 300
+  expected
+  lit 200
+  expected
+  lit 100
+  expected
+
+  check
+semicolon
+
+colon foo1
+  lit 200
+  foo2
+  lit 600
+semicolon
+
+colon foo2
+  lit 300
+  foo3
+  lit 500
+semicolon
+
+colon foo3
+  lit 400
+  noop
+semicolon

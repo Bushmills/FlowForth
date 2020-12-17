@@ -1,0 +1,16 @@
+
+colon main
+   0
+   lit -3
+   _begin
+      1+
+      swap
+      1-
+      swap
+      ?dup
+      0=
+   _until
+   lit -3
+   expected
+   check
+semicolon

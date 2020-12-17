@@ -1,0 +1,9 @@
+colon main
+   0
+   1-		# defined in library. uses -
+   1-
+   1-
+   lit -3
+   expected
+   check
+semicolon

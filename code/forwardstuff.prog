@@ -1,0 +1,17 @@
+
+colon main
+   dp
+   @
+   baz
+   drop
+   bar
+   1+
+   expected
+   check
+semicolon
+
+variable foo baz
+constant baz bar
+variable bar
+end
+symbols

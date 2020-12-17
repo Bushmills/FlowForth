@@ -1,0 +1,7 @@
+constant blue 255
+
+colon main
+   blue
+   led
+   check
+semicolon

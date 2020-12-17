@@ -1,0 +1,11 @@
+
+colon main
+   1
+   lit 2
+   swap
+   1
+   expected
+   lit 2
+   expected
+   check
+semicolon

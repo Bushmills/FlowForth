@@ -1,0 +1,57 @@
+colon main
+   lit 5
+   lit 10
+   <
+   -1
+   expected
+
+   lit 100
+   lit 60
+   <
+   0
+   expected
+
+   lit 5
+   lit -5
+   <
+   0
+   expected
+
+   lit -10
+   lit 5
+   <
+   -1
+   expected
+
+   lit -20
+   lit -10
+   <
+   -1
+   expected
+
+   lit -50
+   lit -80
+   <
+   0
+   expected
+
+   -1
+   0
+   <
+   -1
+   expected
+
+   0
+   0
+   <
+   0
+   expected
+
+   1
+   0
+   <
+   0
+   expected
+
+   check
+semicolon

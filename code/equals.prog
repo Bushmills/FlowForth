@@ -1,0 +1,15 @@
+colon main
+   lit 10
+   dup
+   =
+   true
+   expected
+
+   lit 20
+   lit 10
+   =
+   false
+   expected   
+
+   check
+semicolon

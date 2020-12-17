@@ -1,0 +1,49 @@
+# constant and arithmetics
+
+colon main
+   lit 6
+   lit 2
+
+   2dup
+   +
+   lit 8
+   expected
+
+   2dup
+   -
+   lit 4
+   expected
+
+   2dup
+   *
+   lit 12
+   expected
+
+   /
+   lit 3
+   expected
+
+   lit 10
+   negate
+   lit -10
+   expected
+
+   lit -5
+   negate
+   lit 5
+   expected
+
+#  here was a problem: apparently does Automate distinguish between numeric values of 0 and -0
+#  workaround was to implement negation as two's complement operation, rather than prepending a dash
+   0
+   negate
+   0
+   expected
+
+   lit -0
+   negate
+   0
+   expected
+
+   check
+semicolon

@@ -1,0 +1,14 @@
+
+colon main
+   0
+   lit 8
+   _for
+      dup
+      led
+      lit 32
+      +
+   _next
+   lit 256
+   expected
+   check
+semicolon

@@ -1,0 +1,26 @@
+colon main
+   lit 6
+   lit 3
+   and
+   lit 2
+   expected
+
+   lit 6
+   lit 3
+   or
+   lit 7
+   expected
+
+   lit 6
+   lit 3
+   xor
+   lit 5
+   expected
+
+   lit 255
+   invert
+   lit -256
+   expected
+
+   check
+semicolon

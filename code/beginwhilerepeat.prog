@@ -1,0 +1,21 @@
+
+colon main
+   0
+   lit -3
+   _begin
+      1+
+      ?dup
+   _while
+      swap
+      1-
+      swap
+   _repeat
+   lit -2
+   expected
+   check
+semicolon
+
+
+end
+listing
+symbols

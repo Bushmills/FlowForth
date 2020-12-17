@@ -1,0 +1,21 @@
+colon main
+   1
+   0
+   ?dup
+   0
+   expected
+   1
+   expected
+
+   0
+   1
+   ?dup
+   1
+   expected
+   1
+   expected
+   0
+   expected
+
+   check
+semicolon

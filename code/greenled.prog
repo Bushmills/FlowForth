@@ -1,0 +1,11 @@
+constant green 65280
+constant canary 123
+
+colon main
+   canary
+   green
+   led
+   canary
+   expected
+   check
+semicolon

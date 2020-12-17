@@ -1,0 +1,32 @@
+
+constant white -1
+constant black 1
+
+colon main
+   beginagain
+   lit 123
+   expected
+   check
+semicolon
+
+colon ?exit
+   _if		# by trashing the return address, exit will not return to
+      rdrop 	# where it was called, but instead to where the routine
+   _then	# one level above was called.
+semicolon	
+
+colon beginagain
+   lit 123
+   lit 5
+   _begin
+      white
+      led
+      black
+      led
+
+      1-
+      ?dup
+      0=	# breakout condition      
+      ?exit
+   _again
+semicolon

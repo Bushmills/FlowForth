@@ -1,0 +1,70 @@
+constant red   2097152
+constant green 8192
+constant blue  32
+
+colon rainbow
+   lit 7
+   _for
+      red
+      -
+      green
+      +
+      dup
+      led      
+   _next
+
+   lit 7
+   _for
+      green
+      -
+      blue
+      +
+      dup
+      led      
+   _next
+
+   lit 7
+   _for
+      blue
+      -
+      red
+      +
+      dup
+      led      
+   _next
+semicolon
+
+
+
+
+colon main
+   1
+   dup
+   led
+
+   lit 7
+   _for
+      red
+      +
+      dup
+      led
+   _next
+
+   lit 2
+   _for
+      rainbow
+   _next
+
+   lit 7
+   _for
+      red
+      -
+      dup
+      led      
+   _next
+
+   1
+   expected
+   check
+semicolon
+

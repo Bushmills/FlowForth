@@ -1,0 +1,14 @@
+colon main
+   lit 10
+   lit 20
+   lit 30
+   nip
+   tuck
+   lit 30
+   expected
+   lit 10
+   expected
+   lit 30
+   expected
+   check
+semicolon

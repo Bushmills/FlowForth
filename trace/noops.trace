@@ -1,0 +1,10 @@
+init:     ip: 164  (coldstart entry point)
+next:     ip: 165, w: 166, m[w]: nest
+nest:     ip (old): 165, w: 166 --> ip (new): 167, w: 166
+next:     ip: 168, w: 5, m[w]: noop
+next:     ip: 169, w: 5, m[w]: noop
+next:     ip: 170, w: 5, m[w]: noop
+next:     ip: 171, w: 4, m[w]: unnest
+unnest:   ip = 165      (continue at restored ip)
+next:     ip: 166, w: 6, m[w]: bye
+bye

@@ -1,0 +1,57 @@
+init:     ip: 168  (coldstart entry point)
+next:     ip: 169, w: 172, m[w]: nest
+nest:     ip (old): 169, w: 172 --> ip (new): 173, w: 172
+next:     ip: 174, w: 47, m[w]: nest
+nest:     ip (old): 174, w: 47 --> ip (new): 48, w: 47
+next:     ip: 49, w: 2, m[w]: dovar
+next:     ip: 50, w: 19, m[w]: @   (depth: 1, tos: 3)
+next:     ip: 51, w: 4, m[w]: unnest   (depth: 1, tos: 182)
+unnest:   ip = 174      (continue at restored ip)
+next:     ip: 175, w: 170, m[w]: doconst   (depth: 1, tos: 182)
+next:     ip: 176, w: 26, m[w]: +   (depth: 2, tos: 16)
+next:     ip: 177, w: 170, m[w]: doconst   (depth: 1, tos: 198)
+next:     ip: 178, w: 51, m[w]: nest   (depth: 2, tos: 16)
+nest:     ip (old): 178, w: 51 --> ip (new): 52, w: 51
+next:     ip: 53, w: 2, m[w]: dovar   (depth: 2, tos: 16)
+next:     ip: 54, w: 21, m[w]: +!   (depth: 3, tos: 3)
+next:     ip: 55, w: 4, m[w]: unnest   (depth: 1, tos: 198)
+unnest:   ip = 178      (continue at restored ip)
+next:     ip: 179, w: 47, m[w]: nest   (depth: 1, tos: 198)
+nest:     ip (old): 179, w: 47 --> ip (new): 48, w: 47
+next:     ip: 49, w: 2, m[w]: dovar   (depth: 1, tos: 198)
+next:     ip: 50, w: 19, m[w]: @   (depth: 2, tos: 3)
+next:     ip: 51, w: 4, m[w]: unnest   (depth: 2, tos: 198)
+unnest:   ip = 179      (continue at restored ip)
+next:     ip: 180, w: 148, m[w]: nest   (depth: 2, tos: 198)
+nest:     ip (old): 180, w: 148 --> ip (new): 149, w: 148
+next:     ip: 150, w: 102, m[w]: nest   (depth: 2, tos: 198)
+nest:     ip (old): 150, w: 102 --> ip (new): 103, w: 102
+next:     ip: 104, w: 32, m[w]: =   (depth: 2, tos: 198)
+next:     ip: 105, w: 35, m[w]: 0=   (depth: 1, tos: -1)
+next:     ip: 106, w: 4, m[w]: unnest   (depth: 1, tos: 0)
+unnest:   ip = 150      (continue at restored ip)
+next:     ip: 151, w: 30, m[w]: negate   (depth: 1, tos: 0)
+next:     ip: 152, w: 146, m[w]: dovar   (depth: 1, tos: 0)
+next:     ip: 153, w: 21, m[w]: +!   (depth: 2, tos: 147)
+next:     ip: 154, w: 4, m[w]: unnest
+unnest:   ip = 180      (continue at restored ip)
+next:     ip: 181, w: 154, m[w]: nest
+nest:     ip (old): 181, w: 154 --> ip (new): 155, w: 154
+next:     ip: 156, w: 144, m[w]: doconst
+next:     ip: 157, w: 36, m[w]: led   (depth: 1, tos: 1)
+next:     ip: 158, w: 142, m[w]: doconst
+next:     ip: 159, w: 14, m[w]: depth   (depth: 1, tos: 65280)
+next:     ip: 160, w: 146, m[w]: dovar   (depth: 2, tos: 1)
+next:     ip: 161, w: 19, m[w]: @   (depth: 3, tos: 147)
+next:     ip: 162, w: 23, m[w]: or   (depth: 3, tos: 0)
+next:     ip: 163, w: 8, m[w]: branch0   (depth: 2, tos: 1)
+next:     ip: 165, w: 11, m[w]: drop   (depth: 1, tos: 65280)
+drop:     tos: 65280
+next:     ip: 166, w: 140, m[w]: doconst
+next:     ip: 167, w: 36, m[w]: led   (depth: 1, tos: 16711680)
+next:     ip: 168, w: 4, m[w]: unnest
+unnest:   ip = 181      (continue at restored ip)
+next:     ip: 182, w: 4, m[w]: unnest
+unnest:   ip = 169      (continue at restored ip)
+next:     ip: 170, w: 6, m[w]: bye
+bye

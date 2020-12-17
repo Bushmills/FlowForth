@@ -1,0 +1,86 @@
+init:     ip: 164  (coldstart entry point)
+next:     ip: 165, w: 166, m[w]: nest
+nest:     ip (old): 165, w: 166 --> ip (new): 167, w: 166
+next:     ip: 168, w: 9, m[w]: literal
+lit:      ip: 168, s[0]=10
+next:     ip: 170, w: 9, m[w]: literal   (depth: 1, tos: 10)
+lit:      ip: 170, s[0]=20
+next:     ip: 172, w: 9, m[w]: literal   (depth: 2, tos: 20)
+lit:      ip: 172, s[0]=30
+next:     ip: 174, w: 14, m[w]: depth   (depth: 3, tos: 30)
+next:     ip: 175, w: 9, m[w]: literal   (depth: 4, tos: 3)
+lit:      ip: 175, s[0]=3
+next:     ip: 177, w: 146, m[w]: nest   (depth: 5, tos: 3)
+nest:     ip (old): 177, w: 146 --> ip (new): 147, w: 146
+next:     ip: 148, w: 102, m[w]: nest   (depth: 5, tos: 3)
+nest:     ip (old): 148, w: 102 --> ip (new): 103, w: 102
+next:     ip: 104, w: 32, m[w]: =   (depth: 5, tos: 3)
+next:     ip: 105, w: 35, m[w]: 0=   (depth: 4, tos: -1)
+next:     ip: 106, w: 4, m[w]: unnest   (depth: 4, tos: 0)
+unnest:   ip = 148      (continue at restored ip)
+next:     ip: 149, w: 30, m[w]: negate   (depth: 4, tos: 0)
+next:     ip: 150, w: 144, m[w]: dovar   (depth: 4, tos: 0)
+next:     ip: 151, w: 21, m[w]: +!   (depth: 5, tos: 145)
+next:     ip: 152, w: 4, m[w]: unnest   (depth: 3, tos: 30)
+unnest:   ip = 177      (continue at restored ip)
+next:     ip: 178, w: 9, m[w]: literal   (depth: 3, tos: 30)
+lit:      ip: 178, s[0]=30
+next:     ip: 180, w: 146, m[w]: nest   (depth: 4, tos: 30)
+nest:     ip (old): 180, w: 146 --> ip (new): 147, w: 146
+next:     ip: 148, w: 102, m[w]: nest   (depth: 4, tos: 30)
+nest:     ip (old): 148, w: 102 --> ip (new): 103, w: 102
+next:     ip: 104, w: 32, m[w]: =   (depth: 4, tos: 30)
+next:     ip: 105, w: 35, m[w]: 0=   (depth: 3, tos: -1)
+next:     ip: 106, w: 4, m[w]: unnest   (depth: 3, tos: 0)
+unnest:   ip = 148      (continue at restored ip)
+next:     ip: 149, w: 30, m[w]: negate   (depth: 3, tos: 0)
+next:     ip: 150, w: 144, m[w]: dovar   (depth: 3, tos: 0)
+next:     ip: 151, w: 21, m[w]: +!   (depth: 4, tos: 145)
+next:     ip: 152, w: 4, m[w]: unnest   (depth: 2, tos: 20)
+unnest:   ip = 180      (continue at restored ip)
+next:     ip: 181, w: 9, m[w]: literal   (depth: 2, tos: 20)
+lit:      ip: 181, s[0]=20
+next:     ip: 183, w: 146, m[w]: nest   (depth: 3, tos: 20)
+nest:     ip (old): 183, w: 146 --> ip (new): 147, w: 146
+next:     ip: 148, w: 102, m[w]: nest   (depth: 3, tos: 20)
+nest:     ip (old): 148, w: 102 --> ip (new): 103, w: 102
+next:     ip: 104, w: 32, m[w]: =   (depth: 3, tos: 20)
+next:     ip: 105, w: 35, m[w]: 0=   (depth: 2, tos: -1)
+next:     ip: 106, w: 4, m[w]: unnest   (depth: 2, tos: 0)
+unnest:   ip = 148      (continue at restored ip)
+next:     ip: 149, w: 30, m[w]: negate   (depth: 2, tos: 0)
+next:     ip: 150, w: 144, m[w]: dovar   (depth: 2, tos: 0)
+next:     ip: 151, w: 21, m[w]: +!   (depth: 3, tos: 145)
+next:     ip: 152, w: 4, m[w]: unnest   (depth: 1, tos: 10)
+unnest:   ip = 183      (continue at restored ip)
+next:     ip: 184, w: 9, m[w]: literal   (depth: 1, tos: 10)
+lit:      ip: 184, s[0]=10
+next:     ip: 186, w: 146, m[w]: nest   (depth: 2, tos: 10)
+nest:     ip (old): 186, w: 146 --> ip (new): 147, w: 146
+next:     ip: 148, w: 102, m[w]: nest   (depth: 2, tos: 10)
+nest:     ip (old): 148, w: 102 --> ip (new): 103, w: 102
+next:     ip: 104, w: 32, m[w]: =   (depth: 2, tos: 10)
+next:     ip: 105, w: 35, m[w]: 0=   (depth: 1, tos: -1)
+next:     ip: 106, w: 4, m[w]: unnest   (depth: 1, tos: 0)
+unnest:   ip = 148      (continue at restored ip)
+next:     ip: 149, w: 30, m[w]: negate   (depth: 1, tos: 0)
+next:     ip: 150, w: 144, m[w]: dovar   (depth: 1, tos: 0)
+next:     ip: 151, w: 21, m[w]: +!   (depth: 2, tos: 145)
+next:     ip: 152, w: 4, m[w]: unnest
+unnest:   ip = 186      (continue at restored ip)
+next:     ip: 187, w: 152, m[w]: nest
+nest:     ip (old): 187, w: 152 --> ip (new): 153, w: 152
+next:     ip: 154, w: 142, m[w]: doconst
+next:     ip: 155, w: 36, m[w]: led   (depth: 1, tos: 1)
+next:     ip: 156, w: 14, m[w]: depth
+next:     ip: 157, w: 144, m[w]: dovar   (depth: 1, tos: 0)
+next:     ip: 158, w: 19, m[w]: @   (depth: 2, tos: 145)
+next:     ip: 159, w: 23, m[w]: or   (depth: 2, tos: 0)
+next:     ip: 160, w: 8, m[w]: branch0   (depth: 1, tos: 0)
+branch:   ip: 163 (destination)
+next:     ip: 164, w: 4, m[w]: unnest
+unnest:   ip = 187      (continue at restored ip)
+next:     ip: 188, w: 4, m[w]: unnest
+unnest:   ip = 165      (continue at restored ip)
+next:     ip: 166, w: 6, m[w]: bye
+bye

@@ -1,0 +1,403 @@
+#!/bin/bash -f
+# description:  target compiler for the Automate threaded code VM.
+# dependencies: apart from the VM, additionally needed files are:
+#		   primitives.list	-  a list of the VM code labels.
+#		   library.inc		-  extensions and cold start entry point.
+
+# problems found:
+#   empty lines with white spaces rather than just linefeeds cause compilation error
+
+version="0.16"	# 20201215ls v0.16: 	added literals. VM checks for code files matching.
+		#			removed bug with non-empty lines containing white space only.
+#version=0.15"  # 20201214ls v0.15: added library, flow control.
+
+
+# --- general settings ---
+srcext="prog"							# source files default extension
+codeext="code"							# compiler output files extension
+
+base="/home/l/FlowForth"					# subdirectories relative to $base
+primitives="$base/lib/primitives.inc"				# location and name of primitives list
+library="$base/lib/library.inc"					# location and name of library
+
+
+
+# --- data space ---
+program="$1"
+
+dp=0								# initial compilation address
+declare -a m							# memory
+declare -A symbol						# symbol table (labels)
+declare -a forwardrefs
+declare -A directive						# non-code assembler directives
+declare -A find							# word name to excecution token (primitive and hilevel) or code (runtime)
+								#   consider to stick addresses of runtime code into symbols instead
+declare -a h							# compile time data stack  (hoststack)
+
+
+
+# --- general subroutines and misc helpers ---
+
+errors=0
+error()  {
+   printf 'error: %s\n'  "$@" >&2
+   [[ -z "$file" ]] || printf '%s\n' "file $source, line $lineno: $l"
+   (( errors++ ))
+   output="/dev/null"						# prevent code generation
+}
+
+needs()     { error "$2 needs $1"; }
+needarg()   { needs "an argument" "$@"; }
+needname()  { needs "needs name argument" "$@"; }
+needvalue() { needs "needs value argument" "$@"; }
+needfile()  { needs "a file name argument" "$@"; }
+
+
+
+# --- 
+[[ -f "$primitives" ]] || error "no primitives table"		# refuse execution without primitives
+[[ -z "$program" ]] && error "missing program name"		# refuse compilation without file name given
+[[ "${program##*.}" == "$codeext" ]] &&				# don't clobber source if extension matches code
+   error "source extension may not be $codeext"
+[[ ! -f "$program" && -f "$program.$srcext" ]] &&		# conditionally append default source extension
+   program+=".$srcext"
+[[ -f "$program" ]] || error "$program not found"
+output="${program%.*}.$codeext"					# change extension of output file
+sources="$library $program"					# files included by compiler run
+
+
+### --- subroutines ---
+
+title()     { printf -- '--- %s ---\n' "$1"; }
+
+hcompile()  { m[dp++]="$1"; }					# "host compile", write arg into target program space
+
+forwardref()  {							# by compiling the symbol name which can't yet be
+   arg="$1"							# resolved into target space, and adding the
+   [[ -z "$arg" ]] && needarg "forwardref"			# compilation address to a list of fwd refs,
+   forwardrefs[${#forwardrefs[@]}]="$dp"			# we can later hunt these references and resolve
+   hcompile "$arg"						# them. 
+}
+
+number()  {							# is arg a valid number?
+   local ref="$1"
+   [[ -z "${ref//[0-9+-]/}" ]]					# a bit simplistic, can be cheated easily
+}
+
+symbol()  {							# is arg a defined symbol?
+   local ref="$1"
+   [[ -n "${symbol[$ref]}" ]]
+}
+
+
+# compile a ref, either resolve immediately, or as forward ref
+href()  {
+   ref="$1"
+   if	 symbol "$ref"; then hcompile "$ref"			# hcompile if resolvable symbol
+   elif  number "$ref"; then hcompile "$ref"			# hcompile if number
+   else forwardref "$ref"					# forwardref if neither number nor resolvable symbol
+   fi
+}
+
+
+### --- directives ---
+directive()  {
+  directive["$1"]="$1"
+}   
+
+# i'd like to eliminate this maintaining two distinct lists of similar data.
+header() {
+   find["$1"]="$dp"
+   label "$1"
+}
+
+
+### --- compiling directives ---
+
+
+directive label
+label()  {
+   [[ -z "$1" ]] && needname "label"
+   symbol["$1"]="$dp"						# just a name in $find, no runtime, no allocation
+}
+
+directive create
+create()  {							# header with dovar runtime and no allocation
+   [[ -z "$1" ]] && needname "create"
+   header "$1"
+   hcompile "dovar"
+}
+
+# variable foo							# create variable foo, initialized to 0
+# variable foo 15						# create variable foo, initialized to 15
+# variable foo bla						# create variable foo, initialized to symbol bla or forward reference
+directive variable
+variable()  {							# variable: dovar runtime with 1 cell allocated
+   [[ -z "$1" ]] && needname "variable"
+   create "$1"
+   href "${2:-0}"
+}
+
+directive constant
+constant()  {							# constant name value
+   [[ -z "$1" ]] && needname "constant"
+   [[ -z "$2" ]] && needvalue "constant $1"
+   header "$1"
+   hcompile "doconst"
+   href "$2"
+}
+
+compiling=0
+
+directive colon
+colon()  {
+   [[ -z "$1" ]] && needname "colon"
+   header "$1"
+   hcompile "nest"						# compile nest runtime
+   compiling=1
+}
+
+directive semicolon
+semicolon()  {
+   hcompile "${find[unnest]}"					# compile an unnest execution token
+   compiling=0
+}
+
+directive lit
+lit() {								# compile a literal (an in-code number)
+   [[ -z "$1" ]] && needarg "lit"
+   hcompile "${find[literal]}"
+   hcompile "$1"
+}
+
+hpush()  {
+   hdepth="${#h[@]}"
+   h[hdepth]="$1"
+}
+
+hpop()  {
+   hdepth="${#h[@]}"
+   tos="${h[@]:0 -1}"
+   unset "h[hdepth-1]"
+}
+
+directive _begin
+_begin()  {
+   hpush "$dp"
+}
+
+directive _again
+_again()  {
+   hpop
+   hcompile "${find[branch]}"
+   hcompile "$tos"
+}
+
+directive _until
+_until()  {
+   hpop
+   hcompile "${find[branch0]}"
+   hcompile "$tos"
+}
+
+directive _while
+_while()  {
+   hcompile "${find[branch0]}"
+   hpush "$dp"
+   hcompile 0
+}
+
+directive _repeat
+_repeat()  {
+   hcompile "${find[branch]}"
+   hpop; w="$tos"
+   hpop; hcompile "$tos"
+   m[w]="$dp"  
+}
+
+
+directive _if
+_if()  { _while; }
+
+
+directive _else
+_else()  {
+   hcompile "${find[branch]}"
+   hpop
+   hpush "$dp"
+   hcompile 0
+   m[tos]="$dp"   
+}
+
+directive _then
+_then()  {
+   hpop
+   m[tos]="$dp"   
+}
+
+   
+
+
+# --- non compiling directives: allocation and interaction
+
+directive allot
+allot()  {
+   [[ -z "$1" ]] && needvalue "allot"
+   (( dp+="$1" ))						# reserve a number of cells by advancing compilation pointer
+}
+
+directive here
+here()  { hpush "$dp"; }					# pushs current compilation address on host stack
+								# akin to "PC" pseudo register on many assemblers
+directive .
+.()     { hpop; }
+
+#  here		# stack current compilation address
+#   .      	# output stacked value as number
+#  create foo	# like a variable, but not data space allocated
+#  allot 16	# reserve 10 cells behind foo, accessed on addresses foo ... foo+15
+
+
+directive include
+include()  {
+   [[ -z "$1" || ! -f "$1" ]] && needfile "include"
+   source "$1"
+}
+
+# --- output control directives ---
+
+cr()  { printf '\n'; }
+
+
+tabulate()  {
+   name="$1"
+   value="$2"
+   printf '%s:\t'  "$name"
+   (( ${#name} < 7 )) && printf '\t'
+   printf '%3d\n' "$value"
+}
+
+directive symbols
+symbols()  {
+   title "symbols"
+   for name in "${!symbol[@]}"; do
+      tabulate "$name" "${symbol["$name"]}"
+   done | sort -n -k2,2
+   cr
+}
+
+directive words
+words()  {
+   title "words"
+   for name in "${!find[@]}"; do
+      tabulate "$name" "${find["$name"]}"
+   done | sort -nk 2,2
+   cr
+}
+
+directive listing
+listing()  {
+   title "listing"
+   to="$dp"
+   for ((from=0; from<to; from++)); do
+      (( from == ${symbol[cold]} )) && printf '%s\n' "--- program starts here (run time library above) ---"
+      [[ -z "${m[from]}" ]] ||
+      echo "$from ${m[from]}"
+   done
+   cr
+}
+
+
+# second pass patching in unresolved forward references
+directive end
+end()  {
+   label end							# resolves dictionary pointer forward ref
+   (( ${#forwardrefs[@]} )) && {				# unresolved reference, need second pass
+      for ref in "${forwardrefs[@]}"; do
+         l="${m[ref]}"						# read symbol from mem
+         a="${symbol[$l]}"					# lookup its address
+         [[ -z "$a" ]] && {
+            error "unresolved symbol: $l"
+         }
+         m[ref]="$a"						# replace against value
+      done
+   }
+
+   to="$dp"							# write generated code to file
+   {  for ((from=0; from<to; from++)); do
+         o="${m[from]}"						# read next memory location
+         printf '%s ' "${o:-"-1"}"				# replace unitialized locations with -1
+      done
+      cr
+   } > $output							# write to file
+   ended=1
+}
+
+
+# memory map of a .code file, as loaded into VM memory:
+# addr	use
+#   0		coldstart vector
+#   1		compiler/library version (vm has its version in a variable,
+#		   so the program loader can check whether program and VM match.
+#   2-??	system variables (labelled, reference by name)
+#  ??-??	primitives (labelled, reference by name)
+#  ??-??	run time library (included, labelled, reference by name)
+#  ??-??	user program
+#______  the next adress is first free address in user program space.
+#	rubber banding memory allocation is possible, or simply static
+#	allocation by modifying the the pointer to this address.
+#	In fact does library have words to do so:
+#	   "here" returns that address,
+#	   "allot" modifies it. 
+
+
+# --- initialize memory with cold start vector and system variables
+forwardref "cold"						# cold start vector at address 0
+hcompile "$((10#${version//./}))"				# store version number in address 1
+variable dp end							# let target know where code ends
+								# the first of the system variables in memory map
+
+# --- convert VM code labels to primitives ---
+while read -r primitive _; do
+   [[ -z "$primitive" ]] && continue
+   [[ "${primitive:0:1}" == "#" ]] && continue
+   find["$primitive"]="$dp"					# name -> execution token
+   hcompile "$primitive"					# compile code
+done < $primitives
+
+### --- compiler ---
+ended=0								# detection for "end" in source
+for source in $sources ; do
+   [[ -f "$source" ]] || continue
+   readarray -t src < "$source"					# this way of reading input,
+   lineno=0
+   for l in "${src[@]}"; do					# the passing it linewise to loop,
+      (( lineno++ ))
+      stripped="${l//[[:space:]]/}"				# trim
+      [[ -z "$stripped" ]] && continue				# empty line
+      [[ "${stripped:0:1}" == "#" ]] && continue			# comment line
+      arg=($l)		# bash -f option important
+      instr="$arg"							
+      unset "arg[0]"
+      if [[ -z "${find["$instr"]}" ]]; then			# it's not an instruction
+         if [[ -z "${directive["$instr"]}" ]]; then 		# compile as yet unresolved reference
+            forwardref "$instr"
+         else
+            "${directive[$instr]}" "${arg[@]}"			# execute directive
+         fi
+      else
+         hcompile "${find["$instr"]}"				# compile opcode
+         [[ "${arg[1]:0:1}" == [a-z] ]] &&
+            forwardref "${arg[1]}"
+      fi
+   done
+done
+
+ret=0
+(( ended )) || end
+many="${errors%1}"
+(( errors )) && {
+   printf '%s\n'   "compilation failed: $errors error${many:+s}"
+   ret=1
+}
+exit "$ret"

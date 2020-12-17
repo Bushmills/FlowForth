@@ -1,0 +1,21 @@
+init:     ip: 164  (coldstart entry point)
+next:     ip: 165, w: 168, m[w]: nest
+nest:     ip (old): 165, w: 168 --> ip (new): 169, w: 168
+next:     ip: 170, w: 166, m[w]: doconst
+next:     ip: 171, w: 36, m[w]: led   (depth: 1, tos: 255)
+next:     ip: 172, w: 152, m[w]: nest
+nest:     ip (old): 172, w: 152 --> ip (new): 153, w: 152
+next:     ip: 154, w: 142, m[w]: doconst
+next:     ip: 155, w: 36, m[w]: led   (depth: 1, tos: 1)
+next:     ip: 156, w: 14, m[w]: depth
+next:     ip: 157, w: 144, m[w]: dovar   (depth: 1, tos: 0)
+next:     ip: 158, w: 19, m[w]: @   (depth: 2, tos: 145)
+next:     ip: 159, w: 23, m[w]: or   (depth: 2, tos: 0)
+next:     ip: 160, w: 8, m[w]: branch0   (depth: 1, tos: 0)
+branch:   ip: 163 (destination)
+next:     ip: 164, w: 4, m[w]: unnest
+unnest:   ip = 172      (continue at restored ip)
+next:     ip: 173, w: 4, m[w]: unnest
+unnest:   ip = 165      (continue at restored ip)
+next:     ip: 166, w: 6, m[w]: bye
+bye

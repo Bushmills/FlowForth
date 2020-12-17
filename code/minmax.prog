@@ -1,0 +1,36 @@
+
+colon main
+
+   lit 5
+   lit 10
+   2dup
+   min
+   lit 5
+   expected
+
+   max
+   lit 10
+   expected
+
+   lit -5
+   lit 5
+   2dup
+   min
+   lit -5
+   expected
+   max
+   lit 5
+   expected
+
+   lit -10
+   lit -5
+   2dup
+   min
+   lit -10
+   expected
+   max		
+   lit -5
+   expected
+
+   check
+semicolon
