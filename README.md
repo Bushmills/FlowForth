@@ -27,6 +27,10 @@ The VM is no performance monster, but seems quick enough to attempt porting a co
 Currently are programs for the VM cross compiled on a host computer, and compiler output copied to the device  
 over the air, using rsync.  The compiler has been written in bash.
 
+This github repository is mostly suited for the file based components (programs, library, compiler, support scripts). For the VM,
+the [Automate forum](https://llamalab.com/automate/community/flows/37943) is likely a better place, as it provides a preview
+possibility.
+
 This project is in a very alpha state, in fact, it's hardly useful at this point, though it's hard to speak of  
 "useful" with such a project. It's fun though, trying to run Forth an another rather unlikely platform.  
 
