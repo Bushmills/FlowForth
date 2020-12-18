@@ -4,6 +4,11 @@ add missing primitives
 VM:
 	run time code for do, loop, +loop, leave
 	think about console i/o
+	rename literal primitive to dolit
 
 compile:
 	several words per line
+	rename lit to literal, better test of its state smart properties
+
+
+	
