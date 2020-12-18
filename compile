@@ -63,7 +63,11 @@ immediate=1							# precendence bit, "immediate"
 declare -a h							# compile time data stack  (hoststack)
 compiling=0							# 0 or 1, depending on whether host compiles or interpretes
 
-
+# having written several times to get rid of seperate symbol lists -
+# keeping those may actually not be a bad idea:
+# rename them to  "interpreted" and "compiled", similar with what cmforth on Novix does.
+# but name list "symbols" could go - it's only used for labels, of which exists only two:
+# cold and end
 
 # --- general subroutines and misc helpers ---
 
@@ -82,8 +86,8 @@ fail()  {
 
 needs()     { error "${FUNCNAME[2]} needs $1"; }
 needarg()   { needs "an argument" "$@"; }
-needname()  { needs "needs name argument"; }
-needvalue() { needs "needs value argument"; }
+needname()  { needs "a name argument"; }
+needvalue() { needs "a value argument"; }
 needfile()  { needs "a file name argument"; }
 
 
@@ -145,7 +149,6 @@ href()  {
 directive()  {
   last="$1"
   directive["$1"]="$1"
-  echo "$1"
 }   
 
 # directive immediate    # not much use as directive at this point
@@ -245,6 +248,7 @@ lit() {
 
 directive [tick]; immediate
 [tick]() {								# compile a literal (an in-code number)
+   [[ -z "$1" ]] && needarg
    hpush "${find[$1]}"
    lit
 }
@@ -257,16 +261,14 @@ BEGIN()  {
 
 directive AGAIN; immediate
 AGAIN()  {
-   hpop
    hcompile "${find[branch]}"
-   hcompile "$tos"
+   hpop; hcompile "$tos"
 }
 
 directive UNTIL; immediate
 UNTIL()  {
-   hpop
    hcompile "${find[branch0]}"
-   hcompile "$tos"
+   hpop; hcompile "$tos"
 }
 
 directive WHILE; immediate
@@ -279,9 +281,8 @@ WHILE()  {
 directive REPEAT; immediate
 REPEAT()  {
    hcompile "${find[branch]}"
-   hpop; w="$tos"
+   hpop; m[tos]=$((dp + 1))
    hpop; hcompile "$tos"
-   m[w]="$dp"  
 }
 
 
@@ -292,16 +293,13 @@ IF()  { WHILE; }
 directive ELSE; immediate
 ELSE()  {
    hcompile "${find[branch]}"
-   hpop
-   hpush "$dp"
-   hcompile 0
-   m[tos]="$dp"   
+   hpop; m[tos]=$((dp + 1))
+   hpush "$dp"; hcompile 0
 }
 
 directive THEN; immediate
 THEN()  {
-   hpop
-   m[tos]="$dp"   
+   hpop; m[tos]="$dp"   
 }
 
 
@@ -309,7 +307,7 @@ THEN()  {
 directive "include"
 include()  {
    local file
-   [[ -z "$1" ]] && needarg
+   [[ -z "$1" ]] && needfile
    file="${library%/*}/$1"
    [[ -f "$file" ]] || fail "no such file: $file"
    title "including $file"
@@ -453,37 +451,41 @@ hcompile "$((10#${version//./}))"				# store version number in address 1
 variable dp end							# let target know where code ends
 
 
+# --- compiler and interpret helpers
+isdirective()  { [[ -n "${directive["$1"]}" ]]; }
+isword()       { [[ -n "${find["$1"]}" ]]; }
+isimmediate()  { (( ${headerflag["$1"]:=0} & immediate )); }
+
 # deals with statements between colon and semicolon
 # this ugly monster needs improvement.
-# get rid of seperate symbol tables for directives and words 
+# ugliness reduced already
+# get rid of seperate symbol tables for directives and words (almost done)
 compile1()  {
-   if [[ -n "${find["$instr"]}" ]]; then			# it's an instruction
-      hcompile "${find["$instr"]}"				# compile execution token
-      [[ "${arg[1]:0:1}" == [a-z] ]] &&
-         forwardref "${arg[1]}"
-   elif [[ -n "${directive["$instr"]}" ]]; then
-      if (( ${headerflag["$instr"]:=0} & immediate )); then
-         "${directive[$instr]}" "${arg[@]}"			# execute directive
+   if isword "$1"; then						# it's a word
+      hcompile "${find["$1"]}"					# compile execution token
+   elif isdirective "$1"; then
+      if isimmediate "$1"; then
+         "$1" "${arg[1]}"					# execute directive
       else
-         error "not while compiling: ${directive[$instr]}" "${arg[@]}"
+         error "interpret only: $1"
       fi
-   elif number "$instr"; then					# not an instruction. is it a number?
-      hpush "$instr"
+   elif number "$1"; then					# not an instruction. is it a number?
+      hpush "$1"
       lit
    else
-      forwardref "$instr"					# compile as yet unresolved reference
+      forwardref "$1"						# compile as yet unresolved reference
    fi
 }
 
 # much improved already.
 # deals with statements outside of colon and semicolon
 interpret1()  {
-   if [[ -n "${directive["$instr"]}" ]]; then 		
-      "${directive[$instr]}" "${arg[@]}"			# execute directive
-   elif number "$instr"; then					# not an instruction. is it a number?
-      hpush "$instr"						# yes: push to host stack
+   if isdirective "$1"; then 		
+      "$1" "${arg[@]}"						# execute directive
+   elif number "$1"; then					# not an instruction. is it a number?
+      hpush "$1"						# yes: push to host stack
    else
-      forwardref "$instr"					# compile as yet unresolved reference
+      error "not found: $1"
    fi
 }
 								# the first of the system variables in memory map
@@ -499,10 +501,11 @@ done < $primitives
 
 
 ### --- compiler ---
+# change from linewise parsing to space seperated string parsing.
 compilefile()  {
-   local source="$1" lineno=0 l src
-   [[ -f "$source" ]] && {
-      readarray -t src < "$source"				# this way of reading input,
+   local file="$1" lineno=0 l src
+   [[ -f "$file" ]] && {
+      readarray -t src < "$file"				# this way of reading input,
       for l in "${src[@]}"; do					# the passing it linewise to loop,
          (( lineno++ ))
          stripped="${l//[[:space:]]/}"				# trim
@@ -523,8 +526,8 @@ compilefile()  {
 
 
 ended=0								# detection for "end" in source
-for source in $sources ; do
-  compilefile "$source"
+for file in $sources ; do
+  compilefile "$file"
 done
 
 ret=0
