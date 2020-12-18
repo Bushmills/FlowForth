@@ -15,7 +15,22 @@
 # Otherwise is subversion bumped. VM doesn't check for subversion.
 version="0.17"	
 subversion="1"
-# 20201217ls v0.17.0	compiler:  added [tick] and execute.
+# 20201218ls v0.17.1	compiler: changed colon to :
+#			changed all flow control statements from _statement to STATEMENT
+#			added include (include location defaults to directory of library)
+#			allot directive fetches arg from hstack
+#			interpret time literals are pushed to stack
+#			compile time literals are compiled
+#			added fail handler which aborts, contrasting with error which proceeds
+#			added "immediate" directives which execute during compilation
+#			added [ and ] to turn off and on compilation
+#			added fulllisting directive, replacing former listing directive
+#			former listing directive lists now only user program
+#			test programs and library:
+#			changed all flow control statements _statement to STATEMENT
+#			changed all colon to :
+#			removed all occurances of lit
+# 20201217ls v0.17.0	compiler: added [tick] and execute.
 #			VM: added execute primitive, speeded up program loading
 # 20201217ls v0.16.2	detect number, no need for preceding them with lit
 #			preparing removal of second symbol table
@@ -121,9 +136,25 @@ href()  {
 
 
 ### --- directives ---
+# directives are meant to operate in interpret mode only, unless the precedence bit has been set.
+# They never get compiled, but they may compile to target program as result of them being executed.
+# that makes them akin to state smart, or "immediate", Forth words.
+# It is meant to further blur the difference between "directives" and "words", which are compiled into target,
+# partly by use of header flags. words, in contrast with directives, are never executed during compilation.
+
 directive()  {
+  last="$1"
   directive["$1"]="$1"
+  echo "$1"
 }   
+
+# directive immediate    # not much use as directive at this point
+immediate()  {							# by flagging a directive as immediate, it will also be able to execute
+#   (( headerflag["$last"] |= immediate ))			# during compilation. Other directives won't be found during compilation.
+   w="${headerflag["$last"]}"					# "[" is a bit tricky to use as index for a hash:
+   (( w |= immediate ))						# while the commented out version fails, avoiding to
+   headerflag["$last"]="$w"					# index the array within a math expression works.
+}
 
 
 
@@ -168,50 +199,28 @@ constant()  {							# constant name value
    href "$2"
 }
 
-directive [
-[()  {
-   compiling=1
-}
+# suspend compilation, switch to interpretation
+directive "["; immediate
+[()  { compiling=0; }
+
+# switch to compilation
+directive "]"
+]()  { compiling=1; }
 
 
-headerflag["]"]=$immediate
-directive ]
-]()  {
-   compiling=0
-}
-
-
-directive colon
-colon()  {
+directive ":"
+ :()  {
    [[ -z "$1" ]] && needname
-   header "$1"
+   header "$1"							# create new header
    hcompile "nest"						# compile nest runtime
-   compiling=1
+   ]								# turn on compilation
 }
 
-headerflag["semicolon"]=$immediate
-directive semicolon
+directive semicolon; immediate					# immediate so it can be used to finish compiling a colon word
 semicolon()  {
    hcompile "${find[unnest]}"					# compile an unnest execution token
-   compiling=0
+   [								# turn off compilation
 }
-
-headerflag["lit"]=$immediate
-directive lit
-lit() {								# compile a literal (an in-code number)
-   [[ -z "$1" ]] && needarg
-   hcompile "${find[literal]}"
-   hcompile "$1"
-}
-
-headerflag["[tick]"]=$immediate
-directive [tick]
-[tick]() {								# compile a literal (an in-code number)
-   [[ -z "$1" ]] && needarg
-   hcompile "${find[literal]}"
-   hcompile "${find[$1]}"
-}
-
 
 hpush()  {
    hdepth="${#h[@]}"
@@ -224,39 +233,51 @@ hpop()  {
    unset "h[hdepth-1]"
 }
 
-headerflag["_begin"]=$immediate
-directive _begin
-_begin()  {
+
+directive lit; immediate
+lit() {
+   (( compiling )) && {						# when compiling compile a literal
+      hcompile "${find[literal]}"
+      hpop
+      hcompile "$tos"
+   }
+}
+
+directive [tick]; immediate
+[tick]() {								# compile a literal (an in-code number)
+   hpush "${find[$1]}"
+   lit
+}
+
+
+directive BEGIN; immediate
+BEGIN()  {
    hpush "$dp"
 }
 
-headerflag["_again"]=$immediate
-directive _again
-_again()  {
+directive AGAIN; immediate
+AGAIN()  {
    hpop
    hcompile "${find[branch]}"
    hcompile "$tos"
 }
 
-headerflag["_until"]=$immediate
-directive _until
-_until()  {
+directive UNTIL; immediate
+UNTIL()  {
    hpop
    hcompile "${find[branch0]}"
    hcompile "$tos"
 }
 
-headerflag["_while"]=$immediate
-directive _while
-_while()  {
+directive WHILE; immediate
+WHILE()  {
    hcompile "${find[branch0]}"
    hpush "$dp"
    hcompile 0
 }
 
-headerflag["_repeat"]=$immediate
-directive _repeat
-_repeat()  {
+directive REPEAT; immediate
+REPEAT()  {
    hcompile "${find[branch]}"
    hpop; w="$tos"
    hpop; hcompile "$tos"
@@ -264,14 +285,12 @@ _repeat()  {
 }
 
 
-headerflag["_if"]=$immediate
-directive _if
-_if()  { _while; }
+directive IF; immediate
+IF()  { WHILE; }
 
 
-headerflag["_else"]=$immediate
-directive _else
-_else()  {
+directive ELSE; immediate
+ELSE()  {
    hcompile "${find[branch]}"
    hpop
    hpush "$dp"
@@ -279,41 +298,49 @@ _else()  {
    m[tos]="$dp"   
 }
 
-headerflag["_then"]=$immediate
-directive _then
-_then()  {
+directive THEN; immediate
+THEN()  {
    hpop
    m[tos]="$dp"   
 }
 
-   
 
+# not well tested yet. seems to work
+directive "include"
+include()  {
+   local file
+   [[ -z "$1" ]] && needarg
+   file="${library%/*}/$1"
+   [[ -f "$file" ]] || fail "no such file: $file"
+   title "including $file"
+   compilefile "$file"
+}
 
 # --- non compiling directives: allocation and interaction
 
-directive allot
+directive allot	# ( x -- )
 allot()  {
-   [[ -z "$1" ]] && needvalue
-   (( dp+="$1" ))						# reserve a number of cells by advancing compilation pointer
+   hpop
+   (( dp += tos ))						# reserve a number of cells by advancing compilation pointer
 }
 
 directive here
 here()  { hpush "$dp"; }					# pushs current compilation address on host stack
 								# akin to "PC" pseudo register on many assemblers
 directive .
-.()     { hpop; }
+.()     {
+  hpop
+  echo "$tos"
+}
 
 #  here		# stack current compilation address
 #   .      	# output stacked value as number
 #  create foo	# like a variable, but not data space allocated
-#  allot 16	# reserve 10 cells behind foo, accessed on addresses foo ... foo+15
+#  16		# push 16 to host stack
+#  allot	# pop number from host stack, reserve that number of cells behind foo,
+                #    accessed as foo ... foo+15
 
 
-directive include
-include()  {
-   [[ -z "$1" || ! -f "$1" ]] && needfile
-   source "$1"
-}
 
 # --- output control directives ---
 
@@ -346,16 +373,34 @@ words()  {
    cr
 }
 
+# when executed before end, forward references resolving hasn't been done, and
+# the unresolved references show in the listing
+listingfromto()  {
+   if (( ended )); then
+      for ((from="$1"; from<"$2"; from++)); do
+         [[ -z "${m[from]}" ]] ||
+         printf '%d: %s\n' "$from" "${m[from]}"
+
+         (( from == ${symbol[cold]}-1 )) &&
+            printf '%s\n' "--- program starts here (run time library above) ---"
+      done
+      cr
+   else
+      error "invoke listing after end statement only"
+   fi
+}
+
 directive listing
 listing()  {
    title "listing"
-   to="$dp"
-   for ((from=0; from<to; from++)); do
-      (( from == ${symbol[cold]} )) && printf '%s\n' "--- program starts here (run time library above) ---"
-      [[ -z "${m[from]}" ]] ||
-      echo "$from ${m[from]}"
-   done
-   cr
+   listingfromto "${symbol[cold]}" "$dp"
+}
+
+
+directive fulllisting
+fulllisting()  {
+   title "full listing"
+   listingfromto "0" "$dp"
 }
 
 
@@ -409,8 +454,9 @@ variable dp end							# let target know where code ends
 
 
 # deals with statements between colon and semicolon
+# this ugly monster needs improvement.
+# get rid of seperate symbol tables for directives and words 
 compile1()  {
-#echo "compile $instr ${arg[@]}"
    if [[ -n "${find["$instr"]}" ]]; then			# it's an instruction
       hcompile "${find["$instr"]}"				# compile execution token
       [[ "${arg[1]:0:1}" == [a-z] ]] &&
@@ -422,12 +468,14 @@ compile1()  {
          error "not while compiling: ${directive[$instr]}" "${arg[@]}"
       fi
    elif number "$instr"; then					# not an instruction. is it a number?
-      lit "$instr"
+      hpush "$instr"
+      lit
    else
       forwardref "$instr"					# compile as yet unresolved reference
    fi
 }
 
+# much improved already.
 # deals with statements outside of colon and semicolon
 interpret1()  {
    if [[ -n "${directive["$instr"]}" ]]; then 		
@@ -449,27 +497,34 @@ while read -r primitive _; do
 done < $primitives
 
 
+
 ### --- compiler ---
+compilefile()  {
+   local source="$1" lineno=0 l src
+   [[ -f "$source" ]] && {
+      readarray -t src < "$source"				# this way of reading input,
+      for l in "${src[@]}"; do					# the passing it linewise to loop,
+         (( lineno++ ))
+         stripped="${l//[[:space:]]/}"				# trim
+         [[ -z "$stripped" ]] && continue			# empty line
+         [[ "${stripped:0:1}" == "#" ]] && continue		# comment line
+         arg=($l)						# bash -f option important (no quotes)
+         instr="$arg"							
+         unset "arg[0]"
+         if (( compiling )); then
+            compile1 "$instr"
+         else
+            interpret1 "$instr"
+         fi
+      done
+   }
+}
+
+
+
 ended=0								# detection for "end" in source
 for source in $sources ; do
-   [[ -f "$source" ]] || continue
-   readarray -t src < "$source"					# this way of reading input,
-   lineno=0
-   for l in "${src[@]}"; do					# the passing it linewise to loop,
-      (( lineno++ ))
-      stripped="${l//[[:space:]]/}"				# trim
-      [[ -z "$stripped" ]] && continue				# empty line
-      [[ "${stripped:0:1}" == "#" ]] && continue		# comment line
-      arg=($l)							# bash -f option important (no quotes)
-      instr="$arg"							
-      unset "arg[0]"
-      if (( compiling )); then
-         compile1 "$instr"
-      else
-         interpret1 "$instr"
-      fi
-
-   done
+  compilefile "$source"
 done
 
 ret=0
