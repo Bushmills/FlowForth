@@ -1,0 +1,51 @@
+: main
+   3
+   5
+   4
+   */		# returns 3.75
+   int
+   3
+   expected
+
+   -3
+   5
+   4
+   */		# returns -3.75
+   int		# -3.75 -> -4
+   -4
+   expected
+
+   3
+   -5
+   4
+   */		# returns -3.75
+   int		# -3.75 -> -4
+   -4
+   expected
+
+   3
+   5
+   -4
+   */		# returns -3.75
+   int		# -3.75 -> -4
+   -4
+   expected
+
+   -3
+   5
+   -4
+   */		# returns 3.75
+   int
+   3
+   expected
+
+   -3
+   -5
+   -4
+   */		# returns -3.75
+   int
+   -4
+   expected
+
+   check
+semicolon
