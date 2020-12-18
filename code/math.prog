@@ -1,36 +1,36 @@
 # constant and arithmetics
 
-colon main
-   lit 6
-   lit 2
+: main
+   6
+   2
 
    2dup
    +
-   lit 8
+   8
    expected
 
    2dup
    -
-   lit 4
+   4
    expected
 
    2dup
    *
-   lit 12
+   12
    expected
 
    /
-   lit 3
+   3
    expected
 
-   lit 10
+   10
    negate
-   lit -10
+   -10
    expected
 
-   lit -5
+   -5
    negate
-   lit 5
+   5
    expected
 
 #  here was a problem: apparently does Automate distinguish between numeric values of 0 and -0
@@ -40,7 +40,7 @@ colon main
    0
    expected
 
-   lit -0
+   -0
    negate
    0
    expected

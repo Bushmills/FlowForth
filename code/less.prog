@@ -1,36 +1,36 @@
-colon main
-   lit 5
-   lit 10
+: main
+   5
+   10
    <
    -1
    expected
 
-   lit 100
-   lit 60
+   100
+   60
    <
    0
    expected
 
-   lit 5
-   lit -5
+   5
+   -5
    <
    0
    expected
 
-   lit -10
-   lit 5
+   -10
+   5
    <
    -1
    expected
 
-   lit -20
-   lit -10
+   -20
+   -10
    <
    -1
    expected
 
-   lit -50
-   lit -80
+   -50
+   -80
    <
    0
    expected

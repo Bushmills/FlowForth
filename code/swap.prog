@@ -1,11 +1,11 @@
 
-colon main
+: main
    1
-   lit 2
+   2
    swap
    1
    expected
-   lit 2
+   2
    expected
    check
 semicolon

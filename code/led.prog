@@ -1,14 +1,14 @@
 
-colon main
+: main
    0
-   lit 8
-   _for
+   8
+   FOR
       dup
       led
-      lit 32
+      32
       +
-   _next
-   lit 256
+   NEXT
+   256
    expected
    check
 semicolon

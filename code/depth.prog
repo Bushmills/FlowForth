@@ -1,15 +1,15 @@
-colon main
-   lit 10
-   lit 20
-   lit 30
+: main
+   10
+   20
+   30
    depth
-   lit 3
+   3
    expected
-   lit 30
+   30
    expected
-   lit 20
+   20
    expected
-   lit 10
+   10
    expected
    check
 semicolon

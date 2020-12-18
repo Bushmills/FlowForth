@@ -1,6 +1,6 @@
 constant black 1
 
-colon main
+: main
    black
    led
    check

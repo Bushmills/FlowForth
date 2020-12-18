@@ -1,11 +1,10 @@
-constant red 16711680
-
-colon redled
-   red
-   led
+: main
+   123			# canary
+   drop
+   blueled   
 semicolon
 
-colon main
-   [tick] redled
-   execute
-semicolon
+include foobar.inc
+
+end
+listing

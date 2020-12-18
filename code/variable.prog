@@ -1,15 +1,15 @@
 
 variable foo
 
-colon main
+: main
 
-   lit 5
+   5
    foo
    !
 
    foo
    @
-   lit 5
+   5
    expected
    check
 semicolon

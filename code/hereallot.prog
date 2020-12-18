@@ -1,6 +1,5 @@
-constant 16 16
 
-colon main
+: main
    here				# read dictionary pointer
    16
    +

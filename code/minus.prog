@@ -1,4 +1,4 @@
-colon main
+: main
    0
    1-		# defined in library. uses -
    1-

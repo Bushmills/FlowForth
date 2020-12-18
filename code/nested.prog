@@ -1,36 +1,36 @@
 
-colon main
-  lit 100
+: main
+  100
   foo1
-  lit 600
+  600
   expected
-  lit 500
+  500
   expected
-  lit 400
+  400
   expected
-  lit 300
+  300
   expected
-  lit 200
+  200
   expected
-  lit 100
+  100
   expected
 
   check
 semicolon
 
-colon foo1
-  lit 200
+: foo1
+  200
   foo2
-  lit 600
+  600
 semicolon
 
-colon foo2
-  lit 300
+: foo2
+  300
   foo3
-  lit 500
+  500
 semicolon
 
-colon foo3
-  lit 400
+: foo3
+  400
   noop
 semicolon

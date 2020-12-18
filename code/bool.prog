@@ -1,25 +1,23 @@
-colon main
-   lit 6
-   lit 3
+: main
+   6
+   3
+   2dup
    and
-   lit 2
+   2
    expected
 
-   lit 6
-   lit 3
+   2dup
    or
-   lit 7
+   7
    expected
 
-   lit 6
-   lit 3
    xor
-   lit 5
+   5
    expected
 
-   lit 255
+   255
    invert
-   lit -256
+   -256
    expected
 
    check

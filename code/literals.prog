@@ -1,15 +1,14 @@
-constant 15  15
 
-colon main
-   lit 10
-   lit 5
+: main
+   10
+   5
    +
    dup
    15
    expected
 
    1-
-   lit 14
+   14
    expected
 
    check

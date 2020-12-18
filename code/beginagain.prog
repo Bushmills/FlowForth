@@ -2,18 +2,18 @@
 constant white -1
 constant black 1
 
-colon main
+: main
    beginagain
-   lit 123
+   123
    expected
    check
 semicolon
 
 
-colon beginagain
-   lit 123
-   lit 5
-   _begin
+: beginagain
+   123
+   5
+   BEGIN
       white
       led
       black
@@ -23,5 +23,5 @@ colon beginagain
       ?dup
       0=	# breakout condition      
       ?exit
-   _again
+   AGAIN
 semicolon

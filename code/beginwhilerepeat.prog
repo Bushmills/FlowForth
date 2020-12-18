@@ -1,21 +1,16 @@
 
-colon main
+: main
    0
-   lit -3
-   _begin
+   -3
+   BEGIN
       1+
       ?dup
-   _while
+   WHILE
       swap
       1-
       swap
-   _repeat
-   lit -2
+   REPEAT
+   -2
    expected
    check
 semicolon
-
-
-end
-listing
-symbols

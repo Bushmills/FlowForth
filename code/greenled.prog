@@ -1,7 +1,7 @@
 constant green 65280
 constant canary 123
 
-colon main
+: main
    canary
    green
    led

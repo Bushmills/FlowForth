@@ -1,13 +1,13 @@
 
-colon main
-   lit -5
+: main
+   -5
    abs
-   lit 5
+   5
    expected
 
-   lit 3
+   3
    abs
-   lit 3
+   3
    expected
 
    check

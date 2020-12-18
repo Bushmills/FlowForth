@@ -1,10 +1,13 @@
 constant white -1
 
-colon main
-   lit 123
-   white
+: main
+   123
+
+   4214784
+   colour
+
    led
-   lit 123
+   123
    expected
    check
 semicolon

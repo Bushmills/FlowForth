@@ -1,6 +1,6 @@
 constant blue 255
 
-colon main
+: main
    blue
    led
    check

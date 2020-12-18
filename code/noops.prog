@@ -1,5 +1,5 @@
 # VM test:  three primitives
-colon main
+: main
   noop
   noop
   noop

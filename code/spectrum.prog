@@ -2,69 +2,65 @@ constant red   2097152
 constant green 8192
 constant blue  32
 
-colon rainbow
-   lit 7
-   _for
+: rainbow
+   7
+   FOR
       red
       -
       green
       +
       dup
       led      
-   _next
+   NEXT
 
-   lit 7
-   _for
+   7
+   FOR
       green
       -
       blue
       +
       dup
       led      
-   _next
+   NEXT
 
-   lit 7
-   _for
+   7
+   FOR
       blue
       -
       red
       +
       dup
       led      
-   _next
+   NEXT
 semicolon
 
-
-
-
-colon main
+: main
    1
    dup
    led
 
-   lit 7
-   _for
+   7
+   FOR
       red
       +
       dup
       led
-   _next
+   NEXT
 
-   lit 2
-   _for
+   2
+   FOR
       rainbow
-   _next
+   NEXT
 
-   lit 7
-   _for
+   7
+   FOR
       red
       -
       dup
       led      
-   _next
+   NEXT
 
    1
    expected
    check
 semicolon
-

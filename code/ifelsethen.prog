@@ -1,21 +1,21 @@
 
-colon main
+: main
    false
-   _if
-      lit 123
-   _else
-      lit 456
-   _then
-   lit 456
+   IF
+      123
+   ELSE
+      456
+   THEN
+   456
    expected
 
    true
-   _if
-      lit 123
-   _else
-      lit 456
-   _then
-   lit 123
+   IF
+      123
+   ELSE
+      456
+   THEN
+   123
    expected
 
    check

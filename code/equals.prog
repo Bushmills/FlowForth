@@ -1,12 +1,12 @@
-colon main
-   lit 10
+: main
+   10
    dup
    =
    true
    expected
 
-   lit 20
-   lit 10
+   20
+   10
    =
    false
    expected   

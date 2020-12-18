@@ -1,18 +1,22 @@
 variable foo 123
-colon main
+: main
+   246			# this value will be expected at the end
+			# it's here to show that it survives stack meddling
    foo
    @
-   lit 123
+   123
    expected
 
-   lit 456
    foo
-   !
+   @ 			# adding contents of foo to foo is like
+   foo			# multiplying it's contents with two.
+   +!			# doing that to avoid another literal identical to the canary
 
    foo
    @
-   lit 456
    expected
 
    check
 semicolon
+
+# what this check lacks is verification that the correct address was written to and read from.
