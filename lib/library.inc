@@ -9,42 +9,42 @@ constant -1 -1			# a constant just one.
 constant false 0
 constant true -1
 
-colon here			# here  ( -- a )	read dictionary pointer
+: here				# here  ( -- a )	read dictionary pointer
    dp				# dp is a variable, containing the dictionary pointer
    @				#   (that is, the first address above last compilation)
 semicolon
 
-colon allot			# allot ( x -- )	reserve x memory cells at dp
+: allot				# allot ( x -- )	reserve x memory cells at dp
    dp				# by increasing contents of dp by x, that amount of
    +!				#   cells is hence reserved.
 semicolon   
 
-colon 2dup
+: 2dup
    over
    over
 semicolon
 
-colon nip
+: nip
    swap
    drop
 semicolon
 
-colon tuck
+: tuck
    swap
    over
 semicolon
 
-colon 1+
+: 1+
    1
    +
 semicolon
 
-colon 1-
+: 1-
    -1
    +
 semicolon
 
-colon 2drop
+: 2drop
    drop
    drop
 semicolon
@@ -57,7 +57,7 @@ semicolon
 # but there will be a more flexible and efficient do..loop construct once the need
 # arises. for the time being, and simple loops, for..next is adequate.
 # this construct can of course be nested.
-colon _for	# i			a
+: FOR		# i			a
    r>		# i a
    swap		# a i
    >r		# a			i
@@ -66,93 +66,113 @@ colon _for	# i			a
    >r		#			i a a
 semicolon
 
-colon _next	#			i a r
+: NEXT		#			i a r
    r>		# r			i a
    r>		# r a			i
    r>		# r a i			
    1-		# r a i'
    ?dup		# r a i' i' | r a 0
-   _if		# r a i'
+   IF		# r a i'
       >r	# r a			i'
       dup	# r a a			i'
       >r	# r a			i' a
       swap	# a r
-   _then	# r a | a r
+   THEN		# r a | a r
    drop		# r | a
    >r		#			r | a
 semicolon
 
-colon ?exit
-   _if		# by trashing the return address, exit will not return to
+
+: ?exit
+   IF		# by trashing the return address, exit will not return to
       rdrop 	# where it was called, but instead to where the routine
-   _then	# one level above was called.
+   THEN		# one level above was called.
 semicolon	
 
+: exit
+   rdrop
+semicolon
 
-# yet untested comparisons, therefore these definitions are for now commented out:
-colon <>
+
+: <>
    =
    0=
 semicolon
 
-colon >
+: >
    swap
    <
 semicolon
 
-colon >=
+: >=
    <
    0=
 semicolon
 
-colon <=
+: <=
    >
    0=
 semicolon
 
 
-colon min
+: min
    2dup
    >
-   _if
+   IF
       swap
-   _then
+   THEN
    drop
 semicolon
 
-colon max
+: max
    2dup
    <
-   _if
+   IF
       swap
-   _then
+   THEN
    drop
 semicolon
 
 
-colon ?dup
+: ?dup
    dup
-   _if
+   IF
       dup
-   _then
+   THEN
 semicolon
 
-# include check.inc   # not good
-# led colours for test indicators with expected
+# led colours
+constant dark          1
 constant red    16711680
 constant green     65280
-constant dark 1
+constant blue        255
+constant yellow  8388352
+constant cyan      32767
+constant magenta 2031871
+constant white        -1
+
+: colour  ( r g b -- x )
+   swap
+   256
+   *
+   +
+   swap
+   65536
+   *
+   +
+semicolon
+
 
 variable errors 0
 
-colon expected
+: expected
    <>
    negate 
    errors
    +! 
 semicolon
 
-colon check
+: check
    depth
    errors
    @
@@ -163,16 +183,16 @@ colon check
 
    green	# assume no error
    swap
-   _if
+   IF
       drop	# wrong assumption
       red 
-   _then
+   THEN
    led
 semicolon
 
 
 label cold			# cold start entry point (resolves vector at addr 0)
-[
+]				# switch to compilation
    main				# call main program
    bye				# terminate vm
-]
+[				# return to interpreting mode
