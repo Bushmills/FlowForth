@@ -1,0 +1,5 @@
+
+: blueled
+   blue
+   led
+semicolon
