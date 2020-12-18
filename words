@@ -1,0 +1,103 @@
+name		  interpretation   compilation
+-------------------------------------------------
+dp					x
+unnest					x
+noop					x
+bye					x
+execute					x
+dup			x		x
+drop			x		x
+swap					x
+over					x
+depth					x
+>r					x
+r>					x
+r@					x
+rdrop					x
+@					x
+!					x
++!					x
+and					x
+or					x
+xor					x
+invert					x
+lshift					x
+rshift					x
++					x
+-					x
+*					x
+/					x
+negate					x
+abs					x
+int					x
+=					x
+0<					x
+<					x
+0=					x
+/mod					x
+*/					x
+.			x		x
+type			x		x
+led					x
+false					x
+true					x
+here			x		x
+allot			x		x
+2dup					x
+nip					x
+tuck					x
+1+					x
+1-					x
+2drop					x
+?dup					x
+FOR					x
+NEXT					x
+?exit					x
+exit					x
+<>					x
+>					x
+>=					x
+<=					x
+min					x
+max					x
+dark					x
+red					x
+green					x
+blue					x
+yellow					x
+cyan					x
+magenta					x
+white					x
+colour					x
+errors					x
+expected				x
+check					x
+sdup			x
+sdrop			x
+label			x
+create			x
+variable		x
+constant		x
+[					x
+]			x
+:			x
+semicolon				x
+literal			x		x
+sliteral		x		x
+[tick]			x		x
+BEGIN					x
+AGAIN					x
+UNTIL					x
+WHILE					x
+REPEAT					x
+IF					x
+ELSE					x
+THEN					x
+include			x
+symbols			x
+words			x
+listing			x
+fulllisting		x
+end			x
+
+sleep
