@@ -13,5 +13,3 @@ semicolon
 variable foo baz
 constant baz bar
 variable bar
-end
-symbols
