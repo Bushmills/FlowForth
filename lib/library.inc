@@ -49,6 +49,13 @@ semicolon
    drop
 semicolon
 
+: ?dup
+   dup
+   IF
+      dup
+   THEN
+semicolon
+
 
 # this is a very inefficient, but functional implementation of a for...next loop.
 # notice that it is build as high level code, no specific support code has been
@@ -134,12 +141,6 @@ semicolon
 semicolon
 
 
-: ?dup
-   dup
-   IF
-      dup
-   THEN
-semicolon
 
 # led colours
 constant dark          1
@@ -190,9 +191,8 @@ semicolon
    led
 semicolon
 
-
 label cold			# cold start entry point (resolves vector at addr 0)
 ]				# switch to compilation
-   main				# call main program
+   main
    bye				# terminate vm
 [				# return to interpreting mode
