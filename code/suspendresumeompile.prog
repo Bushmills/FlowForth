@@ -1,0 +1,25 @@
+: main
+
+   [
+      "here when compiled first time: "
+      type
+      here
+      dup
+      .
+     # watch the toasts when running the program
+   ]
+   literal
+   .
+
+   [
+      "here when compiled second time: "
+      type
+      here
+      dup
+      .
+     # watch the toasts when running the program
+   ]
+   literal
+   .
+
+semicolon
