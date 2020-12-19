@@ -1,0 +1,9 @@
+init:     ip: 210  (coldstart entry point)
+next:     ip: 211, w: 212, m[w]: nest
+nest:     ip (old): 211, w: 212 --> ip (new): 213, w: 212
+next:     ip: 214, w: 10, m[w]: dolit
+lit:      ip: 214, s[0]=666
+next:     ip: 216, w: 43, m[w]: .   (depth: 1, tos: 666)
+next:     ip: 217, w: 11, m[w]: slit
+next:     ip: 219, w: 6, m[w]: bye
+VM halt, return code 0.

@@ -1,0 +1,16 @@
+init:     ip: 204  (coldstart entry point)
+next:     ip: 205, w: 206, m[w]: nest
+nest:     ip (old): 205, w: 206 --> ip (new): 207, w: 206
+next:     ip: 208, w: 10, m[w]: dolit
+lit:      ip: 208, s[0]=3
+next:     ip: 210, w: 10, m[w]: dolit   (depth: 1, tos: 3)
+lit:      ip: 210, s[0]=5
+next:     ip: 212, w: 10, m[w]: dolit   (depth: 2, tos: 5)
+lit:      ip: 212, s[0]=4
+next:     ip: 214, w: 40, m[w]: */   (depth: 3, tos: 4)
+next:     ip: 215, w: 12, m[w]: drop   (depth: 1, tos: 3.75)
+drop:     tos: 3.75
+next:     ip: 216, w: 4, m[w]: unnest
+unnest:   ip = 205      (continue at restored ip)
+next:     ip: 206, w: 6, m[w]: bye
+VM halt, return code 0.
