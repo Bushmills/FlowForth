@@ -1,7 +1,7 @@
-210
+208
 18
 dovar
-219
+217
 unnest
 noop
 bye
@@ -206,14 +206,12 @@ nest
 159
 45
 4
-doconst
-666
-214
+212
 6
 doconst
 1
 nest
-212
+210
 45
 193
 4
