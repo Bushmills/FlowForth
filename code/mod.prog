@@ -1,0 +1,11 @@
+: mod
+   /mod
+   nip
+semicolon
+
+: main
+   5
+   3
+   mod
+   .
+semicolon
