@@ -1,4 +1,6 @@
-unnest		# ( -- )
+#name	aliases	  stack			description
+#--------------------------------------------------------------------------------
+unnest	exit	# ( -- )
 noop		# ( -- )
 bye		# ( -- )		terminate the VM, end flow
 branch		# ( -- )		unconditional branch
@@ -34,7 +36,7 @@ int		# ( n -- n )		strips fraction
 =		# ( x1 x2 -- u )
 0<		# ( x1 x2 -- u )
 <		# ( x1 x2 -- u )
-0=		# ( x1 x2 -- u )
+0=	not	# ( x1 x2 -- u )
 /mod		# ( n1 n2 -- n3 n4 )	divide n1 by n2, return quotient n2 and remainder n4
 */		# ( n1 n2 n3 -- n )	n1*n2/n3
 .		# ( n -- )		outputs n as toast
