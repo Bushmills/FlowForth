@@ -1,0 +1,42 @@
+include includefile1.inc
+
+create foo
+ 666
+ ,
+
+: ,
+   here
+   !
+   1
+   allot
+semicolon
+
+create palet
+  green
+  ,
+  red
+  ,
+  blue
+  ,
+  dark
+  ,
+
+
+: main
+   20
+   BEGIN
+      ?dup
+   WHILE
+      1-
+      dup
+      3
+      and
+      palet
+      +
+      @
+      led
+   REPEAT 
+   dark
+   led
+semicolon
+
