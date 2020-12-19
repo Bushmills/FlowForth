@@ -14,7 +14,7 @@ depth					x
 r>					x
 r@					x
 rdrop					x
-@					x
+@			x		x
 !					x
 +!					x
 and					x
@@ -99,5 +99,17 @@ words			x
 listing			x
 fulllisting		x
 end			x
+,			x
 
 sleep
+
+
+-------
+
+names, created with defining words:
+
+header			x
+create			x		x
+variable		x		x
+constant		x		x
+:					x
