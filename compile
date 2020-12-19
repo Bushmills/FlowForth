@@ -14,7 +14,9 @@
 # version is changed when VM, compiler or lib changes render programs incompatible.
 # Otherwise is subversion bumped. VM doesn't check for subversion.
 version="0.18"	
-subversion="0"
+subversion="1"
+# 20201219ls 0.18.1	alias support added (multiple names to same xt in primitives.inc)
+#			constant variable create @ ,   can be used in both host and compile mode
 # 20201218ls 0.18.0	VM: added lshift rshift /mod */ . int slit type
 #			VM and compile: renamed literal to dolit
 #			compile: renamed lit to literal, factored literal parser,
@@ -69,6 +71,9 @@ declare -A headerflag						# vehicle to remove one of those two seperate symbol 
 immediate=1							# precendence bit, "immediate"
 declare -a h							# compile time data stack  (hoststack)
 compiling=0							# 0 or 1, depending on whether host compiles or interpretes
+errors=0							# error counter
+fail=1								# exit code for fail
+success=0								# exit code for success
 
 # having written several times to get rid of seperate symbol lists -
 # keeping those may actually not be a bad idea:
@@ -85,17 +90,16 @@ debug()  {
 }
 
 
-errors=0
 error()  {
    printf 'error: %s\n'  "$@" >&2
-   [[ -z "$file" ]] || printf '%s\n' "file $source, line $lineno: $l"
+   [[ -z "$file" ]] || printf '%s\n' "file $file, line $lineno: $l"
    (( errors++ ))
    output="/dev/null"						# prevent code generation
 }
 
 fail()  {
    error "$@"
-   exit
+   exit "$fail"
 }
 
 needs()     { error "${FUNCNAME[2]} needs $1"; }
@@ -126,11 +130,11 @@ title()     { printf -- '--- %s ---\n' "$1"; }
 hcompile()  {
 debug "arg=$1"
    m[dp++]="$1"
-}					# "host compile", write arg into target program space
+}								# "host compile", write arg into target program space
 
 forwardref()  {							# by compiling the symbol name which can't yet be
    arg="$1"							# resolved into target space, and adding the
-   [[ -z "$arg" ]] && needarg				# compilation address to a list of fwd refs,
+   [[ -z "$arg" ]] && needarg					# compilation address to a list of fwd refs,
    forwardrefs[${#forwardrefs[@]}]="$dp"			# we can later hunt these references and resolve
    hcompile "$arg"						# them. 
 }
@@ -226,6 +230,9 @@ create()  {							# header with dovar runtime and no allocation
    [[ -z "$1" ]] && needname
    header "$1"
    hcompile "dovar"
+
+   directive "$1"						# also add constant to host
+   eval "function $1  { hpush "$dp"; }"
 }
 
 # variable foo							# create variable foo, initialized to 0
@@ -238,14 +245,28 @@ variable()  {							# variable: dovar runtime with 1 cell allocated
    href "${2:-0}"
 }
 
+
+directive @
+@()  {
+   hpop
+   hpush "${m[tos]}"
+}
+
+
 directive constant
 constant()  {							# constant name value
    [[ -z "$1" ]] && needname
    [[ -z "$2" ]] && needvalue "$1"
+
    header "$1"
    hcompile "doconst"
    href "$2"
+
+   directive "$1"						# also add constant to host
+   eval "function $1  { hpush $2; }"
 }
+
+
 
 # suspend compilation, switch to interpretation
 directive "["; immediate
@@ -257,7 +278,7 @@ directive "]"
 
 
 directive ":"
- :()  {
+:()  {
    [[ -z "$1" ]] && needname
    header "$1"							# create new header
    hcompile "nest"						# compile nest runtime
@@ -271,12 +292,15 @@ semicolon()  {
 }
 
 
+directive ,
+,()  { hpop; hcompile "$tos"; }
+
+
 directive literal; immediate
 literal() {
    (( compiling )) && {						# when compiling compile a literal
       hcompile "${find[dolit]}"
-      hpop
-      hcompile "$tos"
+      ,
    }								# otherwise simply leave item on stack
 }
 
@@ -307,13 +331,13 @@ BEGIN()  {
 directive AGAIN; immediate
 AGAIN()  {
    hcompile "${find[branch]}"
-   hpop; hcompile "$tos"
+   ,
 }
 
 directive UNTIL; immediate
 UNTIL()  {
    hcompile "${find[branch0]}"
-   hpop; hcompile "$tos"
+   ,
 }
 
 directive WHILE; immediate
@@ -327,7 +351,7 @@ directive REPEAT; immediate
 REPEAT()  {
    hcompile "${find[branch]}"
    hpop; m[tos]=$((dp + 1))
-   hpop; hcompile "$tos"
+   ,
 }
 
 
@@ -369,6 +393,7 @@ allot()  {
 
 directive here
 here()  { hpush "$dp"; }					# pushs current compilation address on host stack
+
 								# akin to "PC" pseudo register on many assemblers
 #  here		# stack current compilation address
 #   .      	# output stacked value as number
@@ -523,13 +548,13 @@ inline()  {
       hpush "$arg"
       literal
    elif [[ "${arg:0:1}" == '"' ]]; then
-debug "string literal $1 found"
+#debug "string literal $1 found"
       tos="${1#*'"'}"
       spush "${tos%%'"'*}"
       sliteral
    else
       if (( compiling )); then
-debug "forwardref $arg"						# not dealt with arg
+#debug "forwardref $arg"					# not dealt with arg
          forwardref "$arg"					# compile as yet unresolved reference
       else
          error "not found: $arg"
@@ -567,14 +592,15 @@ interpret1()  {
 }								# the first of the system variables in memory map
 
 # --- convert VM code labels to primitives ---
-while read -r primitive _; do
+while read -r primitive aliases; do
    [[ -z "$primitive" ]] && continue
    [[ "${primitive:0:1}" == "#" ]] && continue
    find["$primitive"]="$dp"					# name -> execution token
-   hcompile "$primitive"					# compile code
+   for alias in ${aliases%%#*}; do				# add aliases: same xt, different name
+      find["$alias"]="$dp"
+   done
+   hcompile "$primitive"					# compile xt
 done < $primitives
-
-
 
 ### --- compiler ---
 # change from linewise parsing to space seperated string parsing.
@@ -603,11 +629,9 @@ for file in $sources ; do
   compilefile "$file"
 done
 
-ret=0
 (( ended )) || end
+(( errors )) || exit "$success"
+
 many="${errors%1}"
-(( errors )) && {
-   printf '%s\n'   "compilation failed: $errors error${many:+s}"
-   ret=1
-}
-exit "$ret"
+printf '%s\n'  "compilation failed: $errors error${many:+s}"
+exit "$fail"
