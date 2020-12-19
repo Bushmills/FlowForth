@@ -1,0 +1,13 @@
+: main
+
+   4
+   5
+   lshift
+   6
+   rshift
+   
+   2
+   expected
+   check
+   
+semicolon
