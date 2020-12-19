@@ -1,0 +1,13 @@
+: main
+
+   false
+   not
+   .
+
+   exit
+
+   true
+   not
+   .
+
+semicolon
