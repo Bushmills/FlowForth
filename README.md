@@ -2,11 +2,7 @@
 Another curious Forth alike interpreter, running on flow charts as host computer
 
 FlowForth runs on a flow charts interpreter, specifically on Automate, which is an automation app for Android devices.  
-Currently does the VM look like this:  
-
-![FlowForth VM](http://fachkurs.de/vm/vm.png)
-
-A better quality image can be seen here:  [FlowForth VM (pdf)](http://fachkurs.de/vm/vm.pdf)  
+Currently does the VM look like this: [FlowForth VM (pdf)](http://fachkurs.de/vm/vm.pdf)  
 
 Flow starting points are on the left. One for manually launching the VM,
 with a file selector popping up. The other starting point monitors a file,
