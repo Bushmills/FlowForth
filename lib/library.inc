@@ -19,6 +19,13 @@ constant true -1
    +!          #   cells is hence reserved.
 ;
 
+: ,
+  here
+  !
+  1
+  allot
+;
+
 : 2dup
    over
    over
@@ -94,10 +101,6 @@ constant true -1
    if    # by trashing the return address, exit will not return to
       rdrop    # where it was called, but instead to where the routine
    then     # one level above was called.
-;
-
-: exit
-   rdrop
 ;
 
 
