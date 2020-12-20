@@ -1,14 +1,25 @@
-test untested primitives
-add missing primitives
+	test untested primitives
+	add missing primitives
 
-VM:
-	run time code for do, loop, +loop, leave
-	think about console i/o
-	rename literal primitive to dolit
+VM:	run time code for do, loop, +loop, leave
+
+	add debug flag for conditionally turning on/off writing execution trace to file
+
+	think about console i/o.
+	change output to write to (temp) file, watched by Automate, and read/update by a
+	terminal screen emulating widget. Same mechanism could possible be used for console input.
 
 compile:
 	several words per line
-	rename lit to literal, better test of its state smart properties
 
+	replace /mod and */ primitives against */mod, int the q
 
-	
+	derive mod / /mod */ from */mod
+
+	ok: add a translation layer between names of directives and their corresponding functions
+	ok: with above, add host words for functions with currently impossible names, like ; ! - * /
+
+	more clearly dedicate one name space to host only ("exec") words, the other to compile 
+	time words ("comp").
+
+	en route: Eliminate the pseudo-"immediate" host words, by defining twice with different execution semantics.
