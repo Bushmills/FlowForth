@@ -1,22 +1,22 @@
 
 : main
    false
-   IF
+   if
       123
-   ELSE
+   else
       456
-   THEN
+   then
    456
    expected
 
    true
-   IF
+   if
       123
-   ELSE
+   else
       456
-   THEN
+   then
    123
    expected
 
    check
-semicolon
+;

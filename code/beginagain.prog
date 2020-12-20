@@ -7,13 +7,12 @@ constant black 1
    123
    expected
    check
-semicolon
-
+;
 
 : beginagain
    123
    5
-   BEGIN
+   begin
       white
       led
       black
@@ -23,5 +22,5 @@ semicolon
       ?dup
       0=	# breakout condition      
       ?exit
-   AGAIN
-semicolon
+   again
+;

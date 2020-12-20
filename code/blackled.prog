@@ -4,4 +4,4 @@ constant black 1
    black
    led
    check
-semicolon
+;

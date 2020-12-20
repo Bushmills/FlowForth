@@ -12,5 +12,5 @@ variable foo
    5
    expected
    check
-semicolon
+;
 

@@ -17,6 +17,6 @@ variable foo 123
    expected
 
    check
-semicolon
+;
 
 # what this check lacks is verification that the correct address was written to and read from.

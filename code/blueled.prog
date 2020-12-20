@@ -4,4 +4,4 @@ constant blue 255
    blue
    led
    check
-semicolon
+;

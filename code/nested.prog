@@ -16,21 +16,21 @@
   expected
 
   check
-semicolon
+;
 
 : foo1
   200
   foo2
   600
-semicolon
+;
 
 : foo2
   300
   foo3
   500
-semicolon
+;
 
 : foo3
   400
   noop
-semicolon
+;

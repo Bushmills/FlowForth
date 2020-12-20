@@ -2,13 +2,13 @@
 : main
    0
    8
-   FOR
+   for
       dup
       led
       32
       +
-   NEXT
+   next
    256
    expected
    check
-semicolon
+;

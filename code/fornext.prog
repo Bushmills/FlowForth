@@ -1,15 +1,15 @@
 : main
    0
    4
-   FOR
+   for
       2
       +
       3
-      FOR
+      for
          1+
-      NEXT
-   NEXT
+      next
+   next
    20
    expected	# 8 incs by outer, 12 by inner loop
    check
-semicolon
+;

@@ -4,35 +4,35 @@ constant blue  32
 
 : rainbow
    7
-   FOR
+   for
       red
       -
       green
       +
       dup
       led      
-   NEXT
+   next
 
    7
-   FOR
+   for
       green
       -
       blue
       +
       dup
       led      
-   NEXT
+   next
 
    7
-   FOR
+   for
       blue
       -
       red
       +
       dup
       led      
-   NEXT
-semicolon
+   next
+;
 
 : main
    1
@@ -40,27 +40,27 @@ semicolon
    led
 
    7
-   FOR
+   for
       red
       +
       dup
       led
-   NEXT
+   next
 
    2
-   FOR
+   for
       rainbow
-   NEXT
+   next
 
    7
-   FOR
+   for
       red
       -
       dup
       led      
-   NEXT
+   next
 
    1
    expected
    check
-semicolon
+;

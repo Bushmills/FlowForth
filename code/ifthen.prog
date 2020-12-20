@@ -2,21 +2,21 @@
 : main
    123
    false
-   IF
+   if
       drop
       456
-   THEN
+   then
    123
    expected
 
    123
    true
-   IF
+   if
       drop
       456
-   THEN
+   then
    456
    expected
 
    check
-semicolon
+;

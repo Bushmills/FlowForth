@@ -8,4 +8,4 @@ constant canary 123
    canary
    expected
    check
-semicolon
+;

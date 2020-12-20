@@ -2,15 +2,15 @@
 : main
    0
    -3
-   BEGIN
+   begin
       1+
       swap
       1-
       swap
       ?dup
       0=
-   UNTIL
+   until
    -3
    expected
    check
-semicolon
+;

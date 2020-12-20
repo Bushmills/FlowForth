@@ -9,7 +9,7 @@ create foo
    !
    1
    allot
-semicolon
+;
 
 create palet
   green
@@ -24,9 +24,9 @@ create palet
 
 : main
    20
-   BEGIN
+   begin
       ?dup
-   WHILE
+   while
       1-
       dup
       3
@@ -35,8 +35,7 @@ create palet
       +
       @
       led
-   REPEAT 
+   repeat
    dark
    led
-semicolon
-
+;
