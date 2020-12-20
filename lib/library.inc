@@ -2,59 +2,59 @@
 # compiler takes care of loading both primitives and library.
 
 
-constant 0 0			# often used number are defined as constants
-constant 1 1			# a literal takes two cells to compile, while
-constant -1 -1			# a constant just one.
+constant 0 0         # often used number are defined as constants
+constant 1 1         # a literal takes two cells to compile, while
+constant -1 -1       # a constant just one.
 
 constant false 0
 constant true -1
 
-: here				# here  ( -- a )	read dictionary pointer
-   dp				# dp is a variable, containing the dictionary pointer
-   @				#   (that is, the first address above last compilation)
-semicolon
+: here            # here  ( -- a )  read dictionary pointer
+   dp          # dp is a variable, containing the dictionary pointer
+   @           #   (that is, the first address above last compilation)
+;
 
-: allot				# allot ( x -- )	reserve x memory cells at dp
-   dp				# by increasing contents of dp by x, that amount of
-   +!				#   cells is hence reserved.
-semicolon   
+: allot           # allot ( x -- )  reserve x memory cells at dp
+   dp          # by increasing contents of dp by x, that amount of
+   +!          #   cells is hence reserved.
+;
 
 : 2dup
    over
    over
-semicolon
+;
 
 : nip
    swap
    drop
-semicolon
+;
 
 : tuck
    swap
    over
-semicolon
+;
 
 : 1+
    1
    +
-semicolon
+;
 
 : 1-
    -1
    +
-semicolon
+;
 
 : 2drop
    drop
    drop
-semicolon
+;
 
 : ?dup
    dup
-   IF
+   if
       dup
-   THEN
-semicolon
+   then
+;
 
 
 # this is a very inefficient, but functional implementation of a for...next loop.
@@ -64,81 +64,81 @@ semicolon
 # but there will be a more flexible and efficient do..loop construct once the need
 # arises. for the time being, and simple loops, for..next is adequate.
 # this construct can of course be nested.
-: FOR		# i			a
-   r>		# i a
-   swap		# a i
-   >r		# a			i
-   dup		# a a			i 
-   >r		# a			i a
-   >r		#			i a a
-semicolon
+: for    # i         a
+   r>    # i a
+   swap     # a i
+   >r    # a         i
+   dup      # a a       i
+   >r    # a         i a
+   >r    #        i a a
+;
 
-: NEXT		#			i a r
-   r>		# r			i a
-   r>		# r a			i
-   r>		# r a i			
-   1-		# r a i'
-   ?dup		# r a i' i' | r a 0
-   IF		# r a i'
-      >r	# r a			i'
-      dup	# r a a			i'
-      >r	# r a			i' a
-      swap	# a r
-   THEN		# r a | a r
-   drop		# r | a
-   >r		#			r | a
-semicolon
+: next      #        i a r
+   r>    # r         i a
+   r>    # r a       i
+   r>    # r a i
+   1-    # r a i'
+   ?dup     # r a i' i' | r a 0
+   if    # r a i'
+      >r # r a       i'
+      dup   # r a a        i'
+      >r # r a       i' a
+      swap  # a r
+   then     # r a | a r
+   drop     # r | a
+   >r    #        r | a
+;
 
 
 : ?exit
-   IF		# by trashing the return address, exit will not return to
-      rdrop 	# where it was called, but instead to where the routine
-   THEN		# one level above was called.
-semicolon	
+   if    # by trashing the return address, exit will not return to
+      rdrop    # where it was called, but instead to where the routine
+   then     # one level above was called.
+;
 
 : exit
    rdrop
-semicolon
+;
 
 
 : <>
    =
    0=
-semicolon
+;
 
 : >
    swap
    <
-semicolon
+;
 
 : >=
    <
    0=
-semicolon
+;
 
 : <=
    >
    0=
-semicolon
+;
 
 
 : min
    2dup
    >
-   IF
+   if
       swap
-   THEN
+   then
    drop
-semicolon
+;
 
 : max
    2dup
    <
-   IF
+   if
       swap
-   THEN
+   then
    drop
-semicolon
+;
 
 
 
@@ -161,17 +161,17 @@ constant white        -1
    65536
    *
    +
-semicolon
+;
 
 
 variable errors 0
 
 : expected
    <>
-   negate 
+   negate
    errors
-   +! 
-semicolon
+   +!
+;
 
 : check
    depth
@@ -182,17 +182,17 @@ semicolon
    dark
    led
 
-   green	# assume no error
+   green # assume no error
    swap
-   IF
-      drop	# wrong assumption
-      red 
-   THEN
+   if
+      drop  # wrong assumption
+      red
+   then
    led
-semicolon
+;
 
-label cold			# cold start entry point (resolves vector at addr 0)
-]				# switch to compilation
+label cold        # cold start entry point (resolves vector at addr 0)
+]           # switch to compilation
    main
-   bye				# terminate vm
-[				# return to interpreting mode
+   bye            # terminate vm
+[           # return to interpreting mode
