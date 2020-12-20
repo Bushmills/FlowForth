@@ -1,8 +1,8 @@
 #!/bin/bash -f
 # description:  target compiler for the Automate threaded code VM.
 # dependencies: apart from the VM, additionally needed files are:
-#		   primitives.list	-  a list of the VM code labels.
-#		   library.inc		-  extensions and cold start entry point.
+#        primitives.list   -  a list of the VM code labels.
+#        library.inc    -  extensions and cold start entry point.
 
 # problems found:
 #   empty lines with white spaces rather than just linefeeds cause compilation error
@@ -13,67 +13,67 @@
 # the VM any longer or have never been.
 # version is changed when VM, compiler or lib changes render programs incompatible.
 # Otherwise is subversion bumped. VM doesn't check for subversion.
-version="0.18"	
+version="0.18"
 subversion="1"
-# 20201219ls 0.18.1	alias support added (multiple names to same xt in primitives.inc)
-#			constant variable create @ ,   can be used in both host and compile mode
-# 20201218ls 0.18.0	VM: added lshift rshift /mod */ . int slit type
-#			VM and compile: renamed literal to dolit
-#			compile: renamed lit to literal, factored literal parser,
-#			added string literal detection and handling.
-#			code file format has changed, as previous format was incompatible with literal strings containing spaces
-# 20201218ls 0.17.1	compiler: changed colon to :
-#			changed all flow control statements from _statement to STATEMENT
-#			added include (include location defaults to directory of library)
-#			allot directive fetches arg from hstack
-#			interpret time literals are pushed to stack
-#			compile time literals are compiled
-#			added fail handler which aborts, contrasting with error which proceeds
-#			added "immediate" directives which execute during compilation
-#			added [ and ] to turn off and on compilation
-#			added fulllisting directive, replacing former listing directive
-#			former listing directive lists now only user program
-#			test programs and library:
-#			changed all flow control statements _statement to STATEMENT
-#			changed all colon to :
-#			removed all occurances of lit
-# 20201217ls 0.17.0	compiler: added [tick] and execute.
-#			VM: added execute primitive, speeded up program loading
-# 20201217ls 0.16.2	detect number, no need for preceding them with lit
-#			preparing removal of second symbol table
-# 20201215ls 0.16.1 	added literals. VM checks for code files matching.
-#			removed bug with non-empty lines containing white space only.
+# 20201219ls 0.18.1  alias support added (multiple names to same xt in primitives.inc)
+#        constant variable create @ ,   can be used in both host and compile mode
+# 20201218ls 0.18.0  VM: added lshift rshift /mod */ . int slit type
+#        VM and compile: renamed literal to dolit
+#        compile: renamed lit to literal, factored literal parser,
+#        added string literal detection and handling.
+#        code file format has changed, as previous format was incompatible with literal strings containing spaces
+# 20201218ls 0.17.1  compiler: changed colon to :
+#        changed all flow control statements from _statement to STATEMENT
+#        added include (include location defaults to directory of library)
+#        allot directive fetches arg from hstack
+#        interpret time literals are pushed to stack
+#        compile time literals are compiled
+#        added fail handler which aborts, contrasting with error which proceeds
+#        added "immediate" directives which execute during compilation
+#        added [ and ] to turn off and on compilation
+#        added fulllisting directive, replacing former listing directive
+#        former listing directive lists now only user program
+#        test programs and library:
+#        changed all flow control statements _statement to STATEMENT
+#        changed all colon to :
+#        removed all occurances of lit
+# 20201217ls 0.17.0  compiler: added [tick] and execute.
+#        VM: added execute primitive, speeded up program loading
+# 20201217ls 0.16.2  detect number, no need for preceding them with lit
+#        preparing removal of second symbol table
+# 20201215ls 0.16.1  added literals. VM checks for code files matching.
+#        removed bug with non-empty lines containing white space only.
 #version=0.15"  # 20201214ls v0.15: added library, flow control.
 
 
 # --- general settings ---
 debugging=0
 
-srcext="prog"							# source files default extension
-codeext="code"							# compiler output files extension
+srcext="prog"                    # source files default extension
+codeext="code"                   # compiler output files extension
 
-base="$HOME/FlowForth"						# subdirectories relative to $base
-primitives="$base/lib/primitives.inc"				# location and name of primitives list
-library="$base/lib/library.inc"					# location and name of library
+base="$HOME/FlowForth"                 # subdirectories relative to $base
+primitives="$base/lib/primitives.inc"           # location and name of primitives list
+library="$base/lib/library.inc"              # location and name of library
 
 
 
 # --- data space ---
 program="$1"
 
-dp=0								# initial compilation address
-declare -a m							# memory
-declare -A symbol						# symbol table (labels)
+dp=0                       # initial compilation address
+declare -a m                     # memory
+declare -A symbol                # symbol table (labels)
 declare -a forwardrefs
-declare -A directive						# non-code assembler directives
-declare -A find							# word name to excecution token (primitive and hilevel) or code (runtime)
-declare -A headerflag						# vehicle to remove one of those two seperate symbol tables.
-immediate=1							# precendence bit, "immediate"
-declare -a h							# compile time data stack  (hoststack)
-compiling=0							# 0 or 1, depending on whether host compiles or interpretes
-errors=0							# error counter
-fail=1								# exit code for fail
-success=0								# exit code for success
+declare -A directive                # non-code assembler directives
+declare -A find                     # word name to excecution token (primitive and hilevel) or code (runtime)
+declare -A headerflag                  # vehicle to remove one of those two seperate symbol tables.
+immediate=1                   # precendence bit, "immediate"
+declare -a h                     # compile time data stack  (hoststack)
+compiling=0                   # 0 or 1, depending on whether host compiles or interpretes
+errors=0                   # error counter
+fail=1                        # exit code for fail
+success=0                        # exit code for success
 
 # having written several times to get rid of seperate symbol lists -
 # keeping those may actually not be a bad idea:
@@ -94,7 +94,7 @@ error()  {
    printf 'error: %s\n'  "$@" >&2
    [[ -z "$file" ]] || printf '%s\n' "file $file, line $lineno: $l"
    (( errors++ ))
-   output="/dev/null"						# prevent code generation
+   output="/dev/null"                  # prevent code generation
 }
 
 fail()  {
@@ -110,17 +110,17 @@ needfile()  { needs "a file name argument"; }
 
 
 
-# --- 
+# ---
 [[ -d "$base" ]] || fail "base directory ($base) not found or not accessable"
-[[ -f "$primitives" ]] || fail "no primitives table"		# refuse execution without primitives
-[[ -z "$program" ]] && fail "missing program name"		# refuse compilation without file name given
-[[ "${program##*.}" == "$codeext" ]] &&				# don't clobber source if extension matches code
+[[ -f "$primitives" ]] || fail "no primitives table"     # refuse execution without primitives
+[[ -z "$program" ]] && fail "missing program name"    # refuse compilation without file name given
+[[ "${program##*.}" == "$codeext" ]] &&            # don't clobber source if extension matches code
    fail "source extension may not be $codeext"
-[[ ! -f "$program" && -f "$program.$srcext" ]] &&		# conditionally append default source extension
+[[ ! -f "$program" && -f "$program.$srcext" ]] &&     # conditionally append default source extension
    program+=".$srcext"
 [[ -f "$program" ]] || fail "$program not found"
-output="${program%.*}.$codeext"					# change extension of output file
-sources="$library $program"					# files included by compiler run
+output="${program%.*}.$codeext"              # change extension of output file
+sources="$library $program"               # files included by compiler run
 
 
 ### --- subroutines ---
@@ -130,21 +130,21 @@ title()     { printf -- '--- %s ---\n' "$1"; }
 hcompile()  {
 debug "arg=$1"
    m[dp++]="$1"
-}								# "host compile", write arg into target program space
+}                       # "host compile", write arg into target program space
 
-forwardref()  {							# by compiling the symbol name which can't yet be
-   arg="$1"							# resolved into target space, and adding the
-   [[ -z "$arg" ]] && needarg					# compilation address to a list of fwd refs,
-   forwardrefs[${#forwardrefs[@]}]="$dp"			# we can later hunt these references and resolve
-   hcompile "$arg"						# them. 
+forwardref()  {                     # by compiling the symbol name which can't yet be
+   arg="$1"                   # resolved into target space, and adding the
+   [[ -z "$arg" ]] && needarg             # compilation address to a list of fwd refs,
+   forwardrefs[${#forwardrefs[@]}]="$dp"        # we can later hunt these references and resolve
+   hcompile "$arg"                  # them.
 }
 
-number()  {							# is arg a valid number?
+number()  {                   # is arg a valid number?
    local ref="$1"
-   [[ -z "${ref//[0-9+-]/}" ]]					# a bit simplistic, can be cheated easily
+   [[ -z "${ref//[0-9+-]/}" ]]               # a bit simplistic, can be cheated easily
 }
 
-symbol()  {							# is arg a defined symbol?
+symbol()  {                   # is arg a defined symbol?
    local ref="$1"
    [[ -n "${symbol[$ref]}" ]]
 }
@@ -153,9 +153,9 @@ symbol()  {							# is arg a defined symbol?
 # compile a ref, either resolve immediately, or as forward ref
 href()  {
    ref="$1"
-   if	 symbol "$ref"; then hcompile "$ref"			# hcompile if resolvable symbol
-   elif  number "$ref"; then hcompile "$ref"			# hcompile if number
-   else forwardref "$ref"					# forwardref if neither number nor resolvable symbol
+   if  symbol "$ref"; then hcompile "$ref"         # hcompile if resolvable symbol
+   elif  number "$ref"; then hcompile "$ref"       # hcompile if number
+   else forwardref "$ref"              # forwardref if neither number nor resolvable symbol
    fi
 }
 
@@ -165,8 +165,9 @@ hpush()  {
    h[hdepth]="$1"
 }
 
-hpop()  {							# host pop: move top element to variable tos
+hpop()  {                     # host pop: move top element to variable tos
    hdepth="${#h[@]}"
+   nos="$tos"                 # not really nos:   first pop moves to tos.   next pop moved former tos to nos, makes current tos (which actually was nos) tos
    tos="${h[@]:0 -1}"
    unset "h[hdepth-1]"
 }
@@ -178,7 +179,7 @@ spush()  {
 debug "pushed [$@]"
 }
 
-spop()  {							# host string pop: move top string stack element to tos
+spop()  {                     # host string pop: move top string stack element to tos
    hdepth="${#s[@]}"
    tos="${s[@]:0 -1}"
 debug "popped [$tos]"
@@ -186,7 +187,7 @@ debug "popped [$tos]"
 }
 
 
-   
+
 
 ### --- directives ---
 # directives are meant to operate in interpret mode only, unless the precedence bit has been set.
@@ -195,66 +196,183 @@ debug "popped [$tos]"
 # It is meant to further blur the difference between "directives" and "words", which are compiled into target,
 # partly by use of header flags. words, in contrast with directives, are never executed during compilation.
 
+# $1 is name searched when running compile, $2 is bash function called when $1 is encountered in source
 directive()  {
   last="$1"
-  directive["$1"]="$1"
-}   
+  directive["$1"]="$2"
+}
 
 # directive immediate    # not much use as directive at this point
-immediate()  {							# by flagging a directive as immediate, it will also be able to execute
-#   (( headerflag["$last"] |= immediate ))			# during compilation. Other directives won't be found during compilation.
-   w="${headerflag["$last"]}"					# "[" is a bit tricky to use as index for a hash:
-   (( w |= immediate ))						# while the commented out version fails, avoiding to
-   headerflag["$last"]="$w"					# index the array within a math expression works.
+immediate()  {                   # by flagging a directive as immediate, it will also be able to execute
+#   (( headerflag["$last"] |= immediate ))         # during compilation. Other directives won't be found during compilation.
+   w="${headerflag["$last"]}"             # "[" is a bit tricky to use as index for a hash:
+   (( w |= immediate ))                # while the commented out version fails, avoiding to
+   headerflag["$last"]="$w"               # index the array within a math expression works.
 }
 
 
 
 ### --- compiling directives ---
 
-directive label
+directive "label" "label"
 label()  {
    [[ -z "$1" ]] && needname
-   symbol["$1"]="$dp"						# just a name in $find, no runtime, no allocation
+   symbol["$1"]="$dp"                  # just a name in $find, no runtime, no allocation
 }
 
 # i'd like to eliminate this maintaining two distinct lists of similar data.
 header() {
-   [[ -z "$1" ]] && needname 
+   [[ -z "$1" ]] && needname
    find["$1"]="$dp"
    label "$1"
 }
 
-directive create
-create()  {							# header with dovar runtime and no allocation
+directive "create" "create"
+create()  {                      # header with dovar runtime and no allocation
    [[ -z "$1" ]] && needname
    header "$1"
    hcompile "dovar"
 
-   directive "$1"						# also add constant to host
+   directive "$1" "$1"           # also add constant to host
    eval "function $1  { hpush "$dp"; }"
 }
 
-# variable foo							# create variable foo, initialized to 0
-# variable foo 15						# create variable foo, initialized to 15
-# variable foo bla						# create variable foo, initialized to symbol bla or forward reference
-directive variable
-variable()  {							# variable: dovar runtime with 1 cell allocated
+# variable foo                   # create variable foo, initialized to 0
+# variable foo 15                # create variable foo, initialized to 15
+# variable foo bla                  # create variable foo, initialized to symbol bla or forward reference
+directive "variable" "variable"
+variable()  {                    # variable: dovar runtime with 1 cell allocated
    [[ -z "$1" ]] && needname
    create "$1"
    href "${2:-0}"
 }
 
 
-directive @
-@()  {
+# --- host (exec) memory access directives
+
+directive "@" "fetch"
+fetch()  {
    hpop
    hpush "${m[tos]}"
 }
 
+directive "!" "store"
+store()  {
+   hpop                    # tos: a
+   hpop                    # nos: a, tos: x
+   m[nos]="$tos"
+}
 
-directive constant
-constant()  {							# constant name value
+directive "+!" "plusstore"
+plusstore()  {
+   hpop                    # tos: a
+   hpop                    # nos: a, tos: x
+   (( m[nos] += tos ))
+}
+
+#  --- host (exec) arithmethics
+
+directive "negate" "negate"
+negate()  {
+   hpop
+   hpush $(( -tos ))
+}
+
+directive "abs" "abs"
+abs()  {
+   hpop
+   hpush $(( ${tos#-} ))
+}
+
+
+directive "+" "plus"
+plus()  {
+   hpop
+   hpop
+   hpush $(( tos + nos ))
+}
+
+directive "-" "minus"
+minus()  {
+   hpop
+   hpop                    # nos: x2, tos: x1
+   hpush $(( tos - nos ))
+}
+
+directive "*" "mul"
+mul()  {
+   hpop
+   hpop                    # nos: x2, tos: x1
+   hpush $(( tos * nos ))
+}
+
+directive "/" "div"
+div()  {
+   hpop
+   hpop                    # nos: x2, tos: x1
+   hpush $(( tos / nos ))
+}
+
+
+
+directive "mod" "mod"
+mod()  {
+   hpop
+   hpop                    # nos: x2, tos: x1
+   hpush $(( tos % nos ))
+}
+
+
+# --- host (exec) bitwise logic access directives
+
+directive "and" "and"
+and()  {
+   hpop
+   hpop                    # nos: x2, tos: x1
+   hpush $(( tos & nos ))
+}
+
+directive "or" "or"
+or()  {
+   hpop
+   hpop                    # nos: x2, tos: x1
+   hpush $(( tos | nos ))
+}
+
+
+directive "xor" "xor"
+xor()  {
+   hpop
+   hpop                    # nos: x2, tos: x1
+   hpush $(( tos ^ nos ))
+}
+
+directive "invert" "invert"
+invert()  {
+   hpop
+   hpush $(( ~tos ))
+}
+
+
+directive "lshift" "lshift"
+lshift()  {
+   hpop
+   hpop
+   hpush $(( (tos "<<" nos) & wrap ))     # quotes circumvent geany colour highlighting from never finding a match, albeit quoting the operator, not the operands, looks a tad unconventional.
+}
+
+
+wrap=$(((1<<32)-1))
+directive "rshift" "rshift"
+rshift()  {
+   hpop
+   hpop
+   hpush $(( (tos & wrap) >> nos ))
+}
+
+
+directive "constant" "constant"
+constant()  {                    # constant name value
    [[ -z "$1" ]] && needname
    [[ -z "$2" ]] && needvalue "$1"
 
@@ -262,92 +380,93 @@ constant()  {							# constant name value
    hcompile "doconst"
    href "$2"
 
-   directive "$1"						# also add constant to host
+   directive "$1" "$1"                 # also add constant to host
    eval "function $1  { hpush $2; }"
 }
 
 
 
 # suspend compilation, switch to interpretation
-directive "["; immediate
+directive "[" "["; immediate
 [()  { compiling=0; }
 
 # switch to compilation
-directive "]"
+directive "]" "]"
 ]()  { compiling=1; }
 
 
-directive ":"
+directive ":" ":"
 :()  {
    [[ -z "$1" ]] && needname
-   header "$1"							# create new header
-   hcompile "nest"						# compile nest runtime
-   ]								# turn on compilation
+   header "$1"                   # create new header
+   hcompile "nest"                  # compile nest runtime
+   ]                       # turn on compilation
 }
 
-directive semicolon; immediate					# immediate so it can be used to finish compiling a colon word
+
+directive ";" "semicolon"; immediate             # immediate so it can be used to finish compiling a colon word
 semicolon()  {
-   hcompile "${find[unnest]}"					# compile an unnest execution token
-   [								# turn off compilation
+   hcompile "${find[unnest]}"             # compile an unnest execution token
+   [                       # turn off compilation
 }
 
 
-directive ,
+directive "," ","
 ,()  { hpop; hcompile "$tos"; }
 
 
-directive literal; immediate
+directive "literal" "literal"; immediate
 literal() {
-   (( compiling )) && {						# when compiling compile a literal
+   (( compiling )) && {                # when compiling compile a literal
       hcompile "${find[dolit]}"
       ,
-   }								# otherwise simply leave item on stack
+   }                       # otherwise simply leave item on stack
 }
 
-directive sliteral; immediate
+directive "sliteral" "sliteral"; immediate
 sliteral() {
-   (( compiling )) && {						# when compiling compile a string literal
+   (( compiling )) && {                # when compiling compile a string literal
       hcompile "${find[slit]}"
       spop
 debug "tos=[$tos]"
       hcompile "$tos"
-   }								# otherwise simply leave item on stack
+   }                       # otherwise simply leave item on stack
 }
 
 
-directive [tick]; immediate
-[tick]() {							# compile a literal (an in-code number)
+directive "[']" "[tick]"; immediate
+[tick]() {                    # compile a literal (an in-code number)
    [[ -z "$1" ]] && needarg
    hpush "${find[$1]}"
    literal
 }
 
 
-directive BEGIN; immediate
+directive "begin" "BEGIN"; immediate
 BEGIN()  {
    hpush "$dp"
 }
 
-directive AGAIN; immediate
+directive "again" "AGAIN"; immediate
 AGAIN()  {
    hcompile "${find[branch]}"
    ,
 }
 
-directive UNTIL; immediate
+directive "until" "UNTIL"; immediate
 UNTIL()  {
    hcompile "${find[branch0]}"
    ,
 }
 
-directive WHILE; immediate
+directive "while" "WHILE"; immediate
 WHILE()  {
    hcompile "${find[branch0]}"
    hpush "$dp"
    hcompile 0
 }
 
-directive REPEAT; immediate
+directive "repeat" "REPEAT"; immediate
 REPEAT()  {
    hcompile "${find[branch]}"
    hpop; m[tos]=$((dp + 1))
@@ -355,25 +474,25 @@ REPEAT()  {
 }
 
 
-directive IF; immediate
+directive "if" "IF"; immediate
 IF()  { WHILE; }
 
 
-directive ELSE; immediate
+directive "else" "ELSE"; immediate
 ELSE()  {
    hcompile "${find[branch]}"
    hpop; m[tos]=$((dp + 1))
    hpush "$dp"; hcompile 0
 }
 
-directive THEN; immediate
+directive "then" "THEN"; immediate
 THEN()  {
-   hpop; m[tos]="$dp"   
+   hpop; m[tos]="$dp"
 }
 
 
 # not well tested yet. seems to work
-directive "include"
+directive "include" "include"
 include()  {
    local file
    [[ -z "$1" ]] && needfile
@@ -385,43 +504,49 @@ include()  {
 
 # --- non compiling directives: allocation and interaction
 
-directive allot	# ( x -- )
+directive "allot" "allot"  # ( x -- )
 allot()  {
    hpop
-   (( dp += tos ))						# reserve a number of cells by advancing compilation pointer
+   (( dp += tos ))                  # reserve a number of cells by advancing compilation pointer
 }
 
-directive here
-here()  { hpush "$dp"; }					# pushs current compilation address on host stack
+directive "here" "here"
+here()  { hpush "$dp"; }               # pushs current compilation address on host stack
 
-								# akin to "PC" pseudo register on many assemblers
-#  here		# stack current compilation address
-#   .      	# output stacked value as number
-#  create foo	# like a variable, but not data space allocated
-#  16		# push 16 to host stack
-#  allot	# pop number from host stack, reserve that number of cells behind foo,
+                        # akin to "PC" pseudo register on many assemblers
+#  here     # stack current compilation address
+#   .       # output stacked value as number
+#  create foo  # like a variable, but not data space allocated
+#  16    # push 16 to host stack
+#  allot # pop number from host stack, reserve that number of cells behind foo,
                 #    accessed as foo ... foo+15
 
 
 # --- host stack directives ---
 
-directive drop;   drop()  { hpop; }
-directive sdrop; sdrop()  { spop; }
-directive dup;     dup()  { hpush "${h[@]:0 -1}"; }
-directive sdup;   sdup()  { spush "${s[@]:0 -1}"; }
+directive "dup"   "dup"  ;    dup()  { hpush "${h[@]:0 -1}"; }
+directive "drop"  "drop" ;   drop()  { hpop; }
+directive "swap"  "swap" ;   swap()  { hpop; hpop; hpush "$nos"; hpush "$tos"; }
+directive "over"  "over" ;   over()  { hpush "${h[@]:0 -2:1}"; }
+directive "depth" "depth";   depth() { hpush "${#h[@]}"; }
+
+directive "="     "equal";   equal() { hpop; hpop; hpush $(( -(tos == nos) )); }
+
+directive "sdup"  "sdup" ;   sdup()  { spush "${s[@]:0 -1}"; }
+directive "sdrop" "sdrop";  sdrop()  { spop; }
 
 # --- output directives ---
 
-directive cr
+directive "cr" "cr"
 cr()  { printf '\n'; }
 
-directive .
+directive "." "."
 .()     {
   hpop
   echo "$tos"
 }
 
-directive type
+directive "type" "type"
 type()     {
   spop
   echo "$tos"
@@ -437,7 +562,7 @@ tabulate()  {
    printf '%3d\n' "$value"
 }
 
-directive symbols
+directive "symbols" "symbols"
 symbols()  {
    title "symbols"
    for name in "${!symbol[@]}"; do
@@ -446,7 +571,7 @@ symbols()  {
    cr
 }
 
-directive words
+directive "words" "words"
 words()  {
    title "words"
    for name in "${!find[@]}"; do
@@ -472,14 +597,14 @@ listingfromto()  {
    fi
 }
 
-directive listing
+directive "listing" "listing"
 listing()  {
    title "listing"
    listingfromto "${symbol[cold]}" "$dp"
 }
 
 
-directive fulllisting
+directive "fulllisting" "fulllisting"
 fulllisting()  {
    title "full listing"
    listingfromto "0" "$dp"
@@ -487,51 +612,51 @@ fulllisting()  {
 
 
 # second pass patching in unresolved forward references
-directive end
+directive "end" "end"
 end()  {
-   label end							# resolves dictionary pointer forward ref
-   (( ${#forwardrefs[@]} )) && {				# unresolved reference, need second pass
+   label end                     # resolves dictionary pointer forward ref
+   (( ${#forwardrefs[@]} )) && {          # unresolved reference, need second pass
       for ref in "${forwardrefs[@]}"; do
-         l="${m[ref]}"						# read symbol from mem
-         a="${symbol[$l]}"					# lookup its address
+         l="${m[ref]}"                 # read symbol from mem
+         a="${symbol[$l]}"             # lookup its address
          [[ -z "$a" ]] && {
             error "unresolved symbol: $l"
          }
-         m[ref]="$a"						# replace against value
+         m[ref]="$a"                # replace against value
       done
    }
 
-   to="$dp"							# write generated code to file
+   to="$dp"                   # write generated code to file
    {  for ((from=0; from<to; from++)); do
-         o="${m[from]}"						# read next memory location
-         printf '%s\n' "${o:-"-1"}"				# replace unitialized locations with -1
+         o="${m[from]}"                # read next memory location
+         printf '%s\n' "${o:-"-1"}"          # replace unitialized locations with -1
       done
-   } > $output							# write to file
+   } > $output                   # write to file
    ended=1
 }
 
 
 # memory map of a .code file, as loaded into VM memory:
-# addr	use
-#   0		coldstart vector
-#   1		compiler/library version (vm has its version in a variable,
-#		   so the program loader can check whether program and VM match.
-#   2-??	system variables (labelled, reference by name)
-#  ??-??	primitives (labelled, reference by name)
-#  ??-??	run time library (included, labelled, reference by name)
-#  ??-??	user program
+# addr   use
+#   0    coldstart vector
+#   1    compiler/library version (vm has its version in a variable,
+#        so the program loader can check whether program and VM match.
+#   2-?? system variables (labelled, reference by name)
+#  ??-?? primitives (labelled, reference by name)
+#  ??-?? run time library (included, labelled, reference by name)
+#  ??-?? user program
 #______  the next adress is first free address in user program space.
-#	rubber banding memory allocation is possible, or simply static
-#	allocation by modifying the the pointer to this address.
-#	In fact does library have words to do so:
-#	   "here" returns that address,
-#	   "allot" modifies it. 
+#  rubber banding memory allocation is possible, or simply static
+#  allocation by modifying the the pointer to this address.
+#  In fact does library have words to do so:
+#     "here" returns that address,
+#     "allot" modifies it.
 
 
 # --- initialize memory with cold start vector and system variables
-forwardref "cold"						# cold start vector at address 0
-hcompile "$((10#${version//./}))"				# store version number in address 1
-variable dp end							# let target know where code ends
+forwardref "cold"                # cold start vector at address 0
+hcompile "$((10#${version//./}))"            # store version number in address 1
+variable dp end                     # let target know where code ends
 
 
 # --- compiler and interpret helpers
@@ -543,8 +668,8 @@ isimmediate()  { (( ${headerflag["$1"]:=0} & immediate )); }
 # interpret or compile lines containing literals
 inline()  {
    local arg=($@)
-#debug "args: [${arg[@]}]"   
-   if number "$arg"; then					# not an instruction. is it a number?
+#debug "args: [${arg[@]}]"
+   if number "$arg"; then              # not an instruction. is it a number?
       hpush "$arg"
       literal
    elif [[ "${arg:0:1}" == '"' ]]; then
@@ -554,8 +679,8 @@ inline()  {
       sliteral
    else
       if (( compiling )); then
-#debug "forwardref $arg"					# not dealt with arg
-         forwardref "$arg"					# compile as yet unresolved reference
+#debug "forwardref $arg"               # not dealt with arg
+         forwardref "$arg"             # compile as yet unresolved reference
       else
          error "not found: $arg"
       fi
@@ -567,16 +692,17 @@ inline()  {
 # or after ]
 compile1()  {
    local arg=($@)
-   if isword "$arg"; then					# it's a word
-      hcompile "${find["$arg"]}"				# compile execution token
+   if isword "$arg"; then              # it's a word
+      hcompile "${find["$arg"]}"          # compile execution token
    elif isdirective "$arg"; then
       if isimmediate "$arg"; then
-         "${arg[@]}"						# execute directive
+         arg[0]="${directive[$arg]}"
+         "${arg[@]}"                # execute directive
       else
          error "interpret only: $arg"
       fi
    else
-     inline "$@"						# passing un-arrayed args, because it may contain string literal.
+     inline "$@"                 # passing un-arrayed args, because it may contain string literal.
    fi
 }
 
@@ -584,22 +710,23 @@ compile1()  {
 # or after [
 interpret1()  {
    local arg=($@)
-   if isdirective "$arg"; then 		
-      "${arg[@]}"						# execute directive with args
+   if isdirective "$arg"; then
+      arg[0]="${directive[$arg]}"
+      "${arg[@]}"                # execute directive with args
    else
       inline "$@"
    fi
-}								# the first of the system variables in memory map
+}                       # the first of the system variables in memory map
 
 # --- convert VM code labels to primitives ---
 while read -r primitive aliases; do
    [[ -z "$primitive" ]] && continue
    [[ "${primitive:0:1}" == "#" ]] && continue
-   find["$primitive"]="$dp"					# name -> execution token
-   for alias in ${aliases%%#*}; do				# add aliases: same xt, different name
+   find["$primitive"]="$dp"               # name -> execution token
+   for alias in ${aliases%%#*}; do           # add aliases: same xt, different name
       find["$alias"]="$dp"
    done
-   hcompile "$primitive"					# compile xt
+   hcompile "$primitive"               # compile xt
 done < $primitives
 
 ### --- compiler ---
@@ -607,12 +734,12 @@ done < $primitives
 compilefile()  {
    local file="$1" lineno=0 line src
    [[ -f "$file" ]] && {
-      readarray -t src < "$file"				# this way of reading input,
-      for line in "${src[@]}"; do				# the passing it linewise to loop,
+      readarray -t src < "$file"          # this way of reading input,
+      for line in "${src[@]}"; do            # the passing it linewise to loop,
          (( lineno++ ))
-         stripped="${line//[[:space:]]/}"			# trim
-         [[ -z "$stripped" ]] && continue			# empty line
-         [[ "${stripped:0:1}" == "#" ]] && continue		# comment line
+         stripped="${line//[[:space:]]/}"       # trim
+         [[ -z "$stripped" ]] && continue       # empty line
+         [[ "${stripped:0:1}" == "#" ]] && continue      # comment line
          if (( compiling )); then
             compile1 "$line"
          else
@@ -624,7 +751,7 @@ compilefile()  {
 
 
 
-ended=0								# detection for "end" in source
+ended=0                       # detection for "end" in source
 for file in $sources ; do
   compilefile "$file"
 done
