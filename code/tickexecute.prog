@@ -1,20 +1,21 @@
 
 : main
-   123			# canary
+   123         # canary
 
    dark
-   [tick] led		# sort of lambda, place execution address on stack
+   ['] led     # sort of lambda, place execution address on stack
 
    magenta
-   over			# copy the led execution address for another call to led
-			# each "led" call through execute will, next
-			# to the address of "led" itself, consume
-			# the led colour as argument
+   over        # copy the led execution address for another call to led
+         # each "led" call through execute will, next
+         # to the address of "led" itself, consume
+         # the led colour as argument
    2
-   FOR
-      execute		# run execute twice in a loop
-   NEXT
+   for
+      execute     # run execute twice in a loop
+   next
    123
-   expected		# expecting the canary on stack now
+   expected    # expecting the canary on stack now
    check
-semicolon
+;
+
