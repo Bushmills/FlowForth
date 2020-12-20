@@ -2,7 +2,7 @@
 : greenled
    green
    led
-semicolon
+;
 
 "before inclusion of file3"
 type

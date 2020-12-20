@@ -2,7 +2,7 @@
 : blueled
    blue
    led
-semicolon
+;
 
 "before inclusion of file2"
 type
