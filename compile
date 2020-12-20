@@ -130,21 +130,21 @@ title()     { printf -- '--- %s ---\n' "$1"; }
 hcompile()  {
 debug "arg=$1"
    m[dp++]="$1"
-}                       # "host compile", write arg into target program space
+}                                               # "host compile", write arg into target program space
 
-forwardref()  {                     # by compiling the symbol name which can't yet be
-   arg="$1"                   # resolved into target space, and adding the
-   [[ -z "$arg" ]] && needarg             # compilation address to a list of fwd refs,
+forwardref()  {                                 # by compiling the symbol name which can't yet be
+   arg="$1"                                     # resolved into target space, and adding the
+   [[ -z "$arg" ]] && needarg                   # compilation address to a list of fwd refs,
    forwardrefs[${#forwardrefs[@]}]="$dp"        # we can later hunt these references and resolve
-   hcompile "$arg"                  # them.
+   hcompile "$arg"                              # them.
 }
 
-number()  {                   # is arg a valid number?
+number()  {                                     # is arg a valid number?
    local ref="$1"
-   [[ -z "${ref//[0-9+-]/}" ]]               # a bit simplistic, can be cheated easily
+   [[ -z "${ref//[0-9+-]/}" ]]                  # a bit simplistic, can be cheated easily
 }
 
-symbol()  {                   # is arg a defined symbol?
+symbol()  {                                     # is arg a defined symbol?
    local ref="$1"
    [[ -n "${symbol[$ref]}" ]]
 }
@@ -153,9 +153,9 @@ symbol()  {                   # is arg a defined symbol?
 # compile a ref, either resolve immediately, or as forward ref
 href()  {
    ref="$1"
-   if  symbol "$ref"; then hcompile "$ref"         # hcompile if resolvable symbol
-   elif  number "$ref"; then hcompile "$ref"       # hcompile if number
-   else forwardref "$ref"              # forwardref if neither number nor resolvable symbol
+   if  symbol "$ref"; then hcompile "$ref"      # hcompile if resolvable symbol
+   elif  number "$ref"; then hcompile "$ref"    # hcompile if number
+   else forwardref "$ref"                       # forwardref if neither number nor resolvable symbol
    fi
 }
 
@@ -212,7 +212,7 @@ immediate()  {                   # by flagging a directive as immediate, it will
 
 
 
-### --- compiling directives ---
+# --- host definding directives ---
 
 directive "label" "label"
 label()  {
@@ -248,129 +248,6 @@ variable()  {                    # variable: dovar runtime with 1 cell allocated
 }
 
 
-# --- host (exec) memory access directives
-
-directive "@" "fetch"
-fetch()  {
-   hpop
-   hpush "${m[tos]}"
-}
-
-directive "!" "store"
-store()  {
-   hpop                    # tos: a
-   hpop                    # nos: a, tos: x
-   m[nos]="$tos"
-}
-
-directive "+!" "plusstore"
-plusstore()  {
-   hpop                    # tos: a
-   hpop                    # nos: a, tos: x
-   (( m[nos] += tos ))
-}
-
-#  --- host (exec) arithmethics
-
-directive "negate" "negate"
-negate()  {
-   hpop
-   hpush $(( -tos ))
-}
-
-directive "abs" "abs"
-abs()  {
-   hpop
-   hpush $(( ${tos#-} ))
-}
-
-
-directive "+" "plus"
-plus()  {
-   hpop
-   hpop
-   hpush $(( tos + nos ))
-}
-
-directive "-" "minus"
-minus()  {
-   hpop
-   hpop                    # nos: x2, tos: x1
-   hpush $(( tos - nos ))
-}
-
-directive "*" "mul"
-mul()  {
-   hpop
-   hpop                    # nos: x2, tos: x1
-   hpush $(( tos * nos ))
-}
-
-directive "/" "div"
-div()  {
-   hpop
-   hpop                    # nos: x2, tos: x1
-   hpush $(( tos / nos ))
-}
-
-
-
-directive "mod" "mod"
-mod()  {
-   hpop
-   hpop                    # nos: x2, tos: x1
-   hpush $(( tos % nos ))
-}
-
-
-# --- host (exec) bitwise logic access directives
-
-directive "and" "and"
-and()  {
-   hpop
-   hpop                    # nos: x2, tos: x1
-   hpush $(( tos & nos ))
-}
-
-directive "or" "or"
-or()  {
-   hpop
-   hpop                    # nos: x2, tos: x1
-   hpush $(( tos | nos ))
-}
-
-
-directive "xor" "xor"
-xor()  {
-   hpop
-   hpop                    # nos: x2, tos: x1
-   hpush $(( tos ^ nos ))
-}
-
-directive "invert" "invert"
-invert()  {
-   hpop
-   hpush $(( ~tos ))
-}
-
-
-directive "lshift" "lshift"
-lshift()  {
-   hpop
-   hpop
-   hpush $(( (tos "<<" nos) & wrap ))     # quotes circumvent geany colour highlighting from never finding a match, albeit quoting the operator, not the operands, looks a tad unconventional.
-}
-
-
-wrap=$(((1<<32)-1))
-directive "rshift" "rshift"
-rshift()  {
-   hpop
-   hpop
-   hpush $(( (tos & wrap) >> nos ))
-}
-
-
 directive "constant" "constant"
 constant()  {                    # constant name value
    [[ -z "$1" ]] && needname
@@ -386,13 +263,70 @@ constant()  {                    # constant name value
 
 
 
-# suspend compilation, switch to interpretation
-directive "[" "["; immediate
-[()  { compiling=0; }
+# --- host constants ---
+directive "false" "false";    false()     { hpush "0"; }
+directive "true"  "true";     true()      { hpush "-1"; }
 
-# switch to compilation
-directive "]" "]"
-]()  { compiling=1; }
+# --- host stack directives ---
+
+directive "dup"   "dup";      dup()       { hpush "${h[@]:0 -1}"; }
+directive "drop"  "drop";     drop()      { hpop; }
+directive "swap"  "swap";     swap()      { hpop; hpop; hpush "$nos"; hpush "$tos"; }
+directive "over"  "over";     over()      { hpush "${h[@]:0 -2:1}"; }
+directive "nip"   "nip";      nip()       { swap; drop; }
+directive "tuck"  "tuck";     tuck()      { swap; over; }
+directive "?dup"  "qdup";     qdup()      { hpop; (( tos )) && hpush "$tos"; }
+directive "depth" "depth";    depth()     { hpush "${#h[@]}"; }
+directive "2dup"  "twodup";   twodup()    { over; over; }
+directive "2drop" "twodrop";  twodrop()   { drop; drop; }
+
+
+# --- host compares ---
+directive "0="    "notzero";  notzero()   { hpop; hpush $((~tos)); }
+directive "="     "equal";    equal()     { hpop; hpop; hpush $(( -(tos == nos) )); }
+directive "<>"    "notequal"; notequal()  { equal; notzero; }
+directive "<"     "less";     less()      { hpop; hpop; hpush $(( -(tos < nos) )); }
+directive ">"     "more";     more()      { swap; less; }
+directive "<="    "lessequal";lessequal() { more; notzero; }
+directive ">="    "morezero"; moreequal() { less; notzero; }
+
+
+# --- host (exec) bitwise logic directives
+wrap=$(((1<<32)-1))
+directive "and"   "and";      and()       { hpop; hpop; hpush $(( tos & nos )); }
+directive "or"    "or";       or()        { hpop; hpop; hpush $(( tos | nos )); }
+directive "xor"   "xor";      xor()       { hpop; hpop; hpush $(( tos ^ nos )); }
+directive "invert" "invert";  invert()    { hpop; hpush $(( ~tos )); }
+directive "lshift" "lshift";  lshift()    { hpop; hpop; hpush $(( (tos "<<" nos) & wrap )); }        # quotes circumvent geany colour highlighting from never finding a match, albeit quoting the operator, not the operands, looks a tad unconventional.
+directive "rshift" "rshift";  rshift()    { hpop; hpop; hpush $(( (tos & wrap) >> nos )); }
+
+
+# --- host (exec) memory access and allocation directives
+directive "@"     "fetch";    fetch()     { hpop; hpush "${m[tos]}"; }
+directive "!"     "store";    store()     { hpop; hpop; m[nos]="$tos"; }
+directive "+!"    "plusstore";plusstore() { hpop; hpop; (( m[nos] += tos )); }
+directive "allot" "allot";    allot()     { hpop; (( dp += tos )); }             # reserve a number of cells by advancing compilation pointer  # ( x -- )
+directive "here"  "here";     here()      { hpush "$dp"; }                       # pushs current compilation address on host stack
+directive ","     "comma";    comma()     { hpop; hcompile "$tos"; }
+
+
+#  --- host (exec) arithmethics
+directive "*/"    "starslash";starslash() { hpop; hpop; hdepth="${#h[@]}"; h[hdepth-1]="$(( h[hdepth-1] * tos / nos ))"; }
+directive "/mod" "slashmod";  slashmod()  { hpop; hpop; hpush $(( tos % nos )); hpush $(( tos / nos )); }
+directive "+"     "plus";     plus()      { hpop; hpop; hpush $(( tos + nos )); }
+directive "1+"    "oneplus";  oneplus()   { hpop; hpush $(( tos + 1 )); }
+directive "1-"    "oneminus"; oneminus()  { hpop; hpush $(( tos - 1 )); }
+directive "-"     "minus";    minus()     { hpop; hpop; hpush $(( tos - nos )); }
+directive "*"     "mul";      mul()       { hpush 1; starslash; }
+directive "/"     "div";      div()       { slashmod; nip; }
+directive "mod"   "mod";      mod()       { slashmod; drop; }
+directive "negate" "negate";  negate()    { hpop; hpush $(( -tos )); }
+directive "abs"   "abs";      abs()       { hpop; hpush $(( ${tos#-} )); }
+directive "min"   "min";      min()       { hpop; hpop; (( nos < tos )) && hpush "$nos" || hpush "$tos"; }
+directive "max"   "max";      max()       { hpop; hpop; (( nos > tos )) && hpush "$nos" || hpush "$tos"; }
+
+directive "["     "[";        [()         { compiling=0; };  immediate     # suspend compilation, switch to interpretation
+directive "]"     "]";        ]()         { compiling=1; }                 # switch to compilation
 
 
 directive ":" ":"
@@ -411,17 +345,11 @@ semicolon()  {
 }
 
 
-directive "," ","
-,()  { hpop; hcompile "$tos"; }
 
 
-directive "literal" "literal"; immediate
-literal() {
-   (( compiling )) && {                # when compiling compile a literal
-      hcompile "${find[dolit]}"
-      ,
-   }                       # otherwise simply leave item on stack
-}
+# --- host strings ---
+directive "sdup"  "sdup" ;    sdup()       { spush "${s[@]:0 -1}"; }
+directive "sdrop" "sdrop";    sdrop()       { spop; }
 
 directive "sliteral" "sliteral"; immediate
 sliteral() {
@@ -432,6 +360,19 @@ debug "tos=[$tos]"
       hcompile "$tos"
    }                       # otherwise simply leave item on stack
 }
+
+
+# --- host not sorted yet ---
+
+
+directive "literal" "literal"; immediate
+literal() {
+   (( compiling )) && {                # when compiling compile a literal
+      hcompile "${find[dolit]}"
+      comma
+   }                       # otherwise simply leave item on stack
+}
+
 
 
 directive "[']" "[tick]"; immediate
@@ -450,13 +391,13 @@ BEGIN()  {
 directive "again" "AGAIN"; immediate
 AGAIN()  {
    hcompile "${find[branch]}"
-   ,
+   comma
 }
 
 directive "until" "UNTIL"; immediate
 UNTIL()  {
    hcompile "${find[branch0]}"
-   ,
+   comma
 }
 
 directive "while" "WHILE"; immediate
@@ -470,7 +411,7 @@ directive "repeat" "REPEAT"; immediate
 REPEAT()  {
    hcompile "${find[branch]}"
    hpop; m[tos]=$((dp + 1))
-   ,
+   comma
 }
 
 
@@ -504,14 +445,7 @@ include()  {
 
 # --- non compiling directives: allocation and interaction
 
-directive "allot" "allot"  # ( x -- )
-allot()  {
-   hpop
-   (( dp += tos ))                  # reserve a number of cells by advancing compilation pointer
-}
 
-directive "here" "here"
-here()  { hpush "$dp"; }               # pushs current compilation address on host stack
 
                         # akin to "PC" pseudo register on many assemblers
 #  here     # stack current compilation address
@@ -522,18 +456,6 @@ here()  { hpush "$dp"; }               # pushs current compilation address on ho
                 #    accessed as foo ... foo+15
 
 
-# --- host stack directives ---
-
-directive "dup"   "dup"  ;    dup()  { hpush "${h[@]:0 -1}"; }
-directive "drop"  "drop" ;   drop()  { hpop; }
-directive "swap"  "swap" ;   swap()  { hpop; hpop; hpush "$nos"; hpush "$tos"; }
-directive "over"  "over" ;   over()  { hpush "${h[@]:0 -2:1}"; }
-directive "depth" "depth";   depth() { hpush "${#h[@]}"; }
-
-directive "="     "equal";   equal() { hpop; hpop; hpush $(( -(tos == nos) )); }
-
-directive "sdup"  "sdup" ;   sdup()  { spush "${s[@]:0 -1}"; }
-directive "sdrop" "sdrop";  sdrop()  { spop; }
 
 # --- output directives ---
 
