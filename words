@@ -5,24 +5,37 @@ unnest            x
 noop              x
 bye               x
 execute           x
+
+false             x
+true              x
+
 dup            x  x
 drop           x  x
 swap           x  x
 over           x  x
+nip            x  x
+tuck           x  x
+2dup           x  x
+2drop          x  x
+?dup           x  x
 depth          x  x
+
 >r                x
 r>                x
 r@                x
 rdrop             x
+
 @              x  x
 !              x  x
 +!             x  x
+
 and            x  x
 or             x  x
 xor            x  x
 invert         x  x
 lshift         x  x
 rshift         x  x
+
 +              x  x
 -              x  x
 *              x  x
@@ -30,37 +43,37 @@ rshift         x  x
 mod            x
 negate         x  x
 abs            x  x
-int               x
-=                 x
-0<                x
-<                 x
-0=                x
-/mod              x
-*/                x
+int               x     bound do disappear agn
+min            x  x
+max            x  x
+/mod           x  x
+*/             x  x
+1+             x  x
+1-             x  x
+
+
+=              x  x
+0<             x  x
+<              x  x
+0=             x  x
+<>             x  x
+>              x  x
+>=             x  x
+<=             x  x
+
+
 .              x  x
 type           x  x
 led               x
-false             x
-true              x
+
 here           x  x
+,              x
 allot          x  x
-2dup              x
-nip               x
-tuck              x
-1+                x
-1-                x
-2drop             x
-?dup              x
+
 for               x
 next              x
 ?exit             x
 exit              x
-<>                x
->                 x
->=                x
-<=                x
-min               x
-max               x
 dark              x
 red               x
 green             x
@@ -75,6 +88,7 @@ expected          x
 check             x
 sdup              x
 sdrop          x
+
 label          x
 create         x
 variable       x
@@ -86,6 +100,7 @@ constant       x
 literal        x  x
 sliteral       x  x
 [']            x  x        # shouldn't during exec, instead use '
+
 begin             x
 again             x
 until             x
@@ -94,13 +109,14 @@ repeat            x
 if                x
 else              x
 then              x
+
 include        x
+
 symbols        x
 words          x
 listing        x
 fulllisting    x
 end            x
-,              x
 
 sleep
 
