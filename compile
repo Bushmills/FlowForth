@@ -92,7 +92,7 @@ debug()  {
 
 error()  {
    printf 'error: %s\n'  "$@" >&2
-   [[ -z "$file" ]] || printf '%s\n' "file $file, line $lineno: $l"
+   [[ -z "$file" ]] || printf '%s\n' "file $file, line $line, columns $column: $l"
    (( errors++ ))
    output="/dev/null"                                       # prevent code generation
 }
@@ -595,35 +595,7 @@ inline()  {
 }
 
 
-# processes statements between : and semicolon,
-# or after ]
-compile1()  {
-   local arg=($@)
-   if isword "$arg"; then                                   # it's a word
-      hcompile "${find["$arg"]}"                            # compile execution token
-   elif isdirective "$arg"; then
-      if isimmediate "$arg"; then
-         arg[0]="${directive[$arg]}"
-         "${arg[@]}"                                        # execute directive
-      else
-         error "interpret only: $arg"
-      fi
-   else
-     inline "$@"                                            # passing un-arrayed args, because it may contain string literal.
-   fi
-}
 
-# deals with statements outside of colon and semicolon,
-# or after [
-interpret1()  {
-   local arg=($@)
-   if isdirective "$arg"; then
-      arg[0]="${directive[$arg]}"
-      "${arg[@]}"                                           # execute directive with args
-   else
-      inline "$@"
-   fi
-}
 
 # --- convert VM code labels to primitives ---
 while read -r primitive aliases; do
@@ -639,19 +611,42 @@ done < $primitives
 ### --- compiler ---
 # change from linewise parsing to space seperated string parsing.
 compilefile()  {
-   local file="$1" lineno=0 line src
+# these are locals because of include, which may be nested, clobbering those if they weren't declared local.
+   local file="$1"														# file name
+   local src																# array of all lines in source file
+   local line																# processed line number
+   local column															# count of chars already processed of current line
+   local l																	# text on processed line
+   local nlines															# $file line count
    [[ -f "$file" ]] && {
       readarray -t src < "$file"                            # this way of reading input,
-      for line in "${src[@]}"; do                           # the passing it linewise to loop,
-         (( lineno++ ))
-         stripped="${line//[[:space:]]/}"                   # trim
+		nlines="${#src[@]}"
+      for ((line=0; line<nlines; line++)); do
+			l="${src[line]}"
+         stripped="${l//[[:space:]]/}"                   	# trim
          [[ -z "$stripped" ]] && continue                   # empty line
          [[ "${stripped:0:1}" == "#" ]] && continue         # comment line
-         if (( compiling )); then
-            compile1 "$line"
-         else
-            interpret1 "$line"
-         fi
+         column="0"
+			local arg=($l)
+         if (( compiling )); then									# processes statements between : and semicolon, or after ]
+			   if isword "$arg"; then                          # it's a word
+			      hcompile "${find["$arg"]}"                   # compile execution token
+			   elif isdirective "$arg"; then
+			      if isimmediate "$arg"; then
+			         arg[0]="${directive[$arg]}"
+			         "${arg[@]}"                               # execute directive
+			      else
+			         error "interpret only: $arg"
+			      fi
+			   else
+			     inline "$l"                                   # passing un-arrayed args, because it may contain string literal.
+			   fi
+			elif isdirective "$arg"; then								# deals with statements outside of colon and semicolon, or after [
+			   arg[0]="${directive[$arg]}"
+			   "${arg[@]}"                                     # execute directive with args
+			else
+			   inline "$l"
+			fi
       done
    }
 }
