@@ -92,7 +92,7 @@ debug()  {
 
 error()  {
    printf 'error: %s\n'  "$@" >&2
-   [[ -z "$file" ]] || printf '%s\n' "file $file, line $line, columns $column: $l"
+   [[ -z "$file" ]] || printf '%s\n' "file $file, line $line: $l"
    (( errors++ ))
    output="/dev/null"                                       # prevent code generation
 }
@@ -128,7 +128,7 @@ sources="$library $program"                                 # files included by 
 title()     { printf -- '--- %s ---\n' "$1"; }
 
 hcompile()  {
-debug "arg=$1"
+#debug "arg=$1"
    m[dp++]="$1"
 }                                                           # "host compile", write arg into target program space
 
@@ -176,13 +176,13 @@ hpop()  {                                                   # host pop: move top
 spush()  {
    hdepth="${#s[@]}"
    s[hdepth]="$@"
-debug "pushed [$@]"
+#debug "pushed [$@]"
 }
 
 spop()  {                                                   # host string pop: move top string stack element to tos
    hdepth="${#s[@]}"
    tos="${s[@]:0 -1}"
-debug "popped [$tos]"
+#debug "popped [$tos]"
    unset "s[hdepth-1]"
 }
 
@@ -217,6 +217,8 @@ immediate()  {                                              # by flagging a dire
 # --- host constants ---
 directive "false" "false";    false()     { hpush "0"; }
 directive "true"  "true";     true()      { hpush "-1"; }
+
+directive "#"		"comment";	comment()	{ debug "end of line comment"; }; immediate
 
 # --- host stack directives ---
 
@@ -421,12 +423,15 @@ THEN()  {
 # --- host not sorted yet ---
 
 
+directive "debug" "debugger"; debugger() { debugging=1; }
+
+
 directive "sliteral" "sliteral"; immediate
 sliteral() {
    (( compiling )) && {                                     # when compiling compile a string literal
       hcompile "${find[slit]}"
       spop
-debug "tos=[$tos]"
+#debug "tos=[$tos]"
       hcompile "$tos"
    }                                                        # otherwise simply leave item on stack
 }
@@ -608,6 +613,33 @@ while read -r primitive aliases; do
    hcompile "$primitive"                                    # compile xt
 done < $primitives
 
+
+
+skip()  {
+	shopt -s extglob
+	l="${l##*([[:blank:]])}"											# strip leading white space
+	shopt -u extglob
+   return "${#l}"
+}
+
+scan()  {																	# strip leading non-white-space
+	shopt -s extglob
+	l="${l##*([![:blank:]])}"
+	shopt -u extglob
+   return "${#l}"
+}
+
+
+word()  {
+debugging=0
+debug "1:[$l]"
+   word="${l%%[[:blank:]]*}"
+   l="${l#$word}"
+debug "2:[$word] [$l]"
+debugging=0
+}
+
+
 ### --- compiler ---
 # change from linewise parsing to space seperated string parsing.
 compilefile()  {
@@ -615,38 +647,44 @@ compilefile()  {
    local file="$1"														# file name
    local src																# array of all lines in source file
    local line																# processed line number
-   local column															# count of chars already processed of current line
    local l																	# text on processed line
    local nlines															# $file line count
    [[ -f "$file" ]] && {
       readarray -t src < "$file"                            # this way of reading input,
-		nlines="${#src[@]}"
-      for ((line=0; line<nlines; line++)); do
+      nlines="${#src[@]}"
+		line=0
+		while (( line < nlines )); do
 			l="${src[line]}"
-         stripped="${l//[[:space:]]/}"                   	# trim
-         [[ -z "$stripped" ]] && continue                   # empty line
-         [[ "${stripped:0:1}" == "#" ]] && continue         # comment line
-         column="0"
-			local arg=($l)
-         if (( compiling )); then									# processes statements between : and semicolon, or after ]
-			   if isword "$arg"; then                          # it's a word
-			      hcompile "${find["$arg"]}"                   # compile execution token
-			   elif isdirective "$arg"; then
-			      if isimmediate "$arg"; then
-			         arg[0]="${directive[$arg]}"
-			         "${arg[@]}"                               # execute directive
-			      else
-			         error "interpret only: $arg"
-			      fi
-			   else
-			     inline "$l"                                   # passing un-arrayed args, because it may contain string literal.
-			   fi
-			elif isdirective "$arg"; then								# deals with statements outside of colon and semicolon, or after [
-			   arg[0]="${directive[$arg]}"
-			   "${arg[@]}"                                     # execute directive with args
-			else
-			   inline "$l"
-			fi
+         until skip; do													# line completely processed
+				word
+
+# -------- working on for multi statement lines --------
+
+		      if (( compiling )); then								# processes statements between : and semicolon, or after ]
+					if isword "$word"; then                    	# it's a word
+					   hcompile "${find["$word"]}"             	# compile execution token
+					elif isdirective "$word"; then
+				   	if isimmediate "$word"; then
+							"${directive[$word]}" ${l}                               	# execute directive with args
+					   else
+					      error "interpret only: $word"
+					   fi
+				   else
+					  inline "$word $word $l"                             	# passing un-arrayed args, because it may contain string literal.
+				   fi
+				elif isdirective "$word"; then							# deals with statements outside of colon and semicolon, or after [
+					"${directive[$word]}" ${l}                               	# execute directive with args
+				else
+					inline "$word $l"
+				fi
+
+				l=""            											# for now: consider line completely processed
+
+      	done
+      	(( line++ ))
+
+# ------- up to here ------         
+
       done
    }
 }
