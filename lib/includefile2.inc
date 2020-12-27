@@ -4,11 +4,11 @@
    led
 ;
 
-"before inclusion of file3"
-type
+# "before inclusion of file3"
+# type
 
 include includefile3.inc
 
-"after inclusion of file3"
-type
+# "after inclusion of file3"
+# type
 
