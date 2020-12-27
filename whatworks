@@ -5,10 +5,10 @@ vm:		hi level code nesting
 		literal
 stacks:		dup drop over swap ?dup 2dup 2drop depth nip tuck
 		>r r@ r> rdrop
-memory:		@ ! +! here allot
+memory:		@ ! +! here allot ,
 arithmetics:	+ - * / negate abs 1+ 1- min max int */ /mod
 compare:	< 0= 0< = <> > >= <=
-bool:		and or xor invert
+logic:		and or xor invert lshift rshift
 flow control:	begin again
 		begin until
 		begin while repeat
@@ -17,15 +17,14 @@ flow control:	begin again
 		for next
 		bye
 		execute
-		exit						# hi level library addition
+		exit ?exit
 i/o:		led . type	( should be type$ - outputs and drops top string stack item )
 
 
 #--- not yet tested ---
-
+rdepth
 
 #--- missing ---
-comparison:	u< 
-logic:		lshift rshift
-stacks:		rdepth
-arithmetics:	mod umin umax 		# could be library additions
+all unsigned arithmetic and comparison
+comparison:
+arithmetic:
