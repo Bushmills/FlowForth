@@ -14,10 +14,12 @@
 # version is changed when VM, compiler or lib changes render programs incompatible.
 # Otherwise is subversion bumped. VM doesn't check for subversion.
 version="0.18"
-subversion="3"
+subversion="4"
 
+# 20201227ls 0.18.4
+#   fixed string literals
 # 20201227ls 0.18.3
-# 	 fixed parsing *
+# 	 fixed parsing *, no need for bash -f any longer
 # 20201227ls 0.18.2
 #	 new name for array find: compiled. more informative error message.
 #	 a bit more error checking. added input parsing skip, arg, parse.
@@ -221,7 +223,8 @@ sdup()    { spush "${s[@]:0 -1}"; }
 sdepth()  { hpush "${#s[@]}"; }
 
 
-# not a string stack operation:  works on line tail $l
+# not a string stack operation:  works on line tail $l.
+# trims leading whitesp.   rename to  minleading (-leading)
 skip()  {
 #debug "1: $l"
    whitespace="${l%%[![:blank:]]*}"
@@ -675,12 +678,21 @@ inline()  {
    number "$arg" && { hpush "$arg"; literal; return 0; }
 
 # a string?
-   [[ "${arg:0:1}" == '"' ]] && { tos="${1#*'"'}"; spush "${tos%%'"'*}"; sliteral; return 0; }
+   [[ "${arg:0:1}" == '"' ]] && {
+      delimiter='"'
+      spush "$delimiter"; parse
+		spop
+      spush "${arg#"$delimiter"} $tos"
+      sliteral
+      return 0
+   }
 
 # a forward reference?
    (( compiling )) && { forwardref "$arg"; return 0; }      # compile as yet unresolved reference
    error "not found: $arg"
    return 3
+   
+# a bird?   
 }
 
 
