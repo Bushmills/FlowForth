@@ -1,201 +1,125 @@
-# library should be included beween primitives and user program.
-# compiler takes care of loading both primitives and library.
+\ library should be included beween primitives and user program.
+\ compiler takes care of loading both primitives and library.
 
+ 0 constant 0			\ often used number are defined as constants
+ 1 constant 1			\ a literal takes two cells to compile, while
+-1 constant -1			\ a constant just one.
 
-constant 0 0         # often used number are defined as constants
-constant 1 1         # a literal takes two cells to compile, while
-constant -1 -1       # a constant just one.
+ 0 constant false 
+-1 constant true
 
-constant false 0
-constant true -1
-
-: here            # here  ( -- a )  read dictionary pointer
-   dp          # dp is a variable, containing the dictionary pointer
-   @           #   (that is, the first address above last compilation)
+: here  ( -- a )  		\ read dictionary pointer
+   dp @				\ dp is a variable, containing the dictionary pointer
 ;
 
-: allot           # allot ( x -- )  reserve x memory cells at dp
-   dp          # by increasing contents of dp by x, that amount of
-   +!          #   cells is hence reserved.
+: allot ( x -- )		\ reserve x memory cells at dp
+   dp  +!               	\ by adding to contents of dp
 ;
 
-: ,
-  here
-  !
-  1
-  allot
+: ,  ( x -- )			\ store a number at here, allocate space
+  here !
+  1 allot
 ;
 
-: 2dup
-   over
-   over
+: nip ( x1 x2 -- x2 )		\ remove second from top stack item
+   swap drop
 ;
 
-: nip
-   swap
-   drop
+: tuck ( x1 x2 -- x2 x1 x2 )	\ copy tos under second from top
+   swap over
 ;
 
-: tuck
-   swap
-   over
+: 2dup ( x1 x2 -- x1 x2 x1 x2 )	\ duplicate a number pair
+   over  over
 ;
 
-: 1+
-   1
-   +
+: 2drop ( x1 x2 -- )		\ remove top two stack items
+   drop drop
 ;
 
-: 1-
-   -1
-   +
+: ?dup ( 0 -- 0 | x -- x x )	\ conditionally duplicate tos
+   dup if dup then
 ;
 
-: 2drop
-   drop
-   drop
+: 1+ ( x1 -- x2 )		\ increment tos by one
+   1 +
 ;
 
-: ?dup
-   dup
-   if
-      dup
-   then
+: 1- ( x1 -- x2 )		\ decrement tos by one
+   -1 +
 ;
 
 
-# this is a very inefficient, but functional implementation of a for...next loop.
-# notice that it is build as high level code, no specific support code has been
-# added to the VM for alloing to build this for..next construct.
-# allowing construction of this.
-# but there will be a more flexible and efficient do..loop construct once the need
-# arises. for the time being, and simple loops, for..next is adequate.
-# this construct can of course be nested.
-: for    # i         a
-   r>    # i a
-   swap     # a i
-   >r    # a         i
-   dup      # a a       i
-   >r    # a         i a
-   >r    #        i a a
+\ this is a very inefficient, but functional implementation of a for...next loop.
+\ notice that it is build as high level code, no specific support code has been
+\ added to the VM for alloing to build this for..next construct.
+\ allowing construction of this.
+\ but there will be a more flexible and efficient do..loop construct once the need
+\ arises. for the time being, and simple loops, for..next is adequate.
+\ this construct can of course be nested.
+: for  ( u -- )
+   r> swap  >r
+   dup  >r >r
 ;
-
-: next      #        i a r
-   r>    # r         i a
-   r>    # r a       i
-   r>    # r a i
-   1-    # r a i'
-   ?dup     # r a i' i' | r a 0
-   if    # r a i'
-      >r # r a       i'
-      dup   # r a a        i'
-      >r # r a       i' a
-      swap  # a r
-   then     # r a | a r
-   drop     # r | a
-   >r    #        r | a
+: next ( -- )
+   r> r> r> 1-
+   ?dup if
+      >r dup >r	swap
+   then 
+   drop >r
 ;
 
 
-: ?exit
-   if    # by trashing the return address, exit will not return to
-      rdrop    # where it was called, but instead to where the routine
-   then     # one level above was called.
+: ?exit ( x -- )		\ conditional premature exit of a word
+   if rdrop then ;
+\ by trashing the return address, exit will not return to
+\ where it was called, but instead to where the routine
+\ one level above was called.
+
+
+: <>  ( x1 x2 -- f )  =  0= ;	\ unequal comparison
+: >   ( n1 n2 -- f )  swap  < ;	\ signed greater than comparison
+: >=  ( n1 n2 -- f )  < 0=  ;	\ signed greater or equal comparison
+: <=  ( n1 n2 -- f )  >  0= ;	\ signed less or equal comparison
+
+
+: min ( n1 n2 -- n )		\ keep smaller of two signed numbers
+   2dup > if swap then drop ;
+
+: max ( n1 n2 -- n )            \ keep greater of two signed numbers
+   2dup < if swap then drop ;
+
+
+\ led colours
+	1 constant dark
+ 16711680 constant red
+    65280 constant green
+      255 constant blue
+  8388352 constant yellow
+    32767 constant cyan
+  2031871 constant magenta
+       -1 constant white
+
+: colour  ( r g b -- x )	\ mix led colour from red,green,blue
+   swap  8 lshift +
+   swap 16 lshift +
 ;
 
 
-: <>
-   =
-   0=
+\ VM components test
+create errors 0 ,
+
+: expected  ( x1 x2 -- )	\ mismatch count
+   <> negate errors +!
 ;
 
-: >
-   swap
-   <
-;
-
-: >=
-   <
-   0=
-;
-
-: <=
-   >
-   0=
-;
-
-
-: min
-   2dup
-   >
-   if
-      swap
-   then
-   drop
-;
-
-: max
-   2dup
-   <
-   if
-      swap
-   then
-   drop
-;
-
-
-
-# led colours
-constant dark          1
-constant red    16711680
-constant green     65280
-constant blue        255
-constant yellow  8388352
-constant cyan      32767
-constant magenta 2031871
-constant white        -1
-
-: colour  ( r g b -- x )
-   swap
-   256
-   *
-   +
-   swap
-   65536
-   *
-   +
-;
-
-
-variable errors 0
-
-: expected
-   <>
-   negate
-   errors
-   +!
-;
-
-: check
-   depth
-   errors
-   @
-   or
-
-   dark
-   led
-
-   green # assume no error
-   swap
-   if
-      drop  # wrong assumption
-      red
-   then
+: check ( -- )			\ mismatch evaluation
+   dark led
+   depth errors @ or
+   green			\ assume no error
+   swap if drop red then	\ wrong assumption
    led
 ;
 
-label cold        # cold start entry point (resolves vector at addr 0)
-]           # switch to compilation
-   main
-   bye            # terminate vm
-[           # return to interpreting mode
+label cold			\ cold start entry point (resolves vector at addr 0)
+] main bye [			\ compile main program call and program termination
