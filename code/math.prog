@@ -1,49 +1,13 @@
 # constant and arithmetics
 
-: main
-   6
-   2
-
-   2dup
-   +
-   8
-   expected
-
-   2dup
-   -
-   4
-   expected
-
-   2dup
-   *
-   12
-   expected
-
-   /
-   3
-   expected
-
-   10
-   negate
-   -10
-   expected
-
-   -5
-   negate
-   5
-   expected
-
-#  here was a problem: apparently does Automate distinguish between numeric values of 0 and -0
-#  workaround was to implement negation as two's complement operation, rather than prepending a dash
-   0
-   negate
-   0
-   expected
-
-   -0
-   negate
-   0
-   expected
-
-   check
-;
+: main  ( -- )
+   6 2
+   2dup +   8 expected
+   2dup -   4 expected
+   2dup *  12 expected
+        /   3 expected
+   10 negate -10 expected
+   -5 negate   5 expected
+    0 negate   0 expected
+   -0 negate   0 expected
+   check ;
