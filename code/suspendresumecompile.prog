@@ -1,23 +1,23 @@
 : main
 
    [
-      "here when compiled first time: "
+      "here_when_compiled_first_time:_"
       type
       here
       dup
       .
-     # watch the toasts when running the program
+\    watch the toasts when running the program
    ]
    literal
    .
 
    [
-      "here when compiled second time: "
+      "here_when_compiled_second_time:_"
       type
       here
       dup
       .
-     # watch the toasts when running the program
+\     watch the toasts when running the program
    ]
    literal
    .
