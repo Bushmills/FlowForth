@@ -1,15 +1,8 @@
 
-: main
-   dp
-   @
-   baz
-   drop
-   bar
-   1+
-   expected
-   check
-;
+: main ( -- )
+   foo @ 2 *
+   bar expected
+   check  ;
 
-variable foo baz
-constant baz bar
-variable bar
+create foo  50 ,
+100 constant bar
