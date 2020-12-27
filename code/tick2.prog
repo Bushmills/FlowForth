@@ -1,0 +1,12 @@
+123 constant canary
+
+: main  ( -- )
+   canary
+   dark ['] led		\ sort of lambda, place execution address on stack
+   magenta over		\ copy the led execution address for another call to led
+			\ each "led" call through execute will, next
+			\ to the address of "led" itself, consume
+			\ the led colour as argument
+   2 for execute next	\ run execute twice in a loop
+   canary expected	\ expecting the canary on stack now
+   check  ;

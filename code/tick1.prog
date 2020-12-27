@@ -1,0 +1,13 @@
+123 constant canary
+: foo  ( -- )  blue led ;
+: bar  ( -- )  white led ;
+
+' foo constant baz
+
+: main  ( -- )
+   canary
+   ['] bar 		\ obtain execution token
+   baz execute		\ leave xt on stack, execute another word which was ticked compile time
+   execute		\ now execute the run time ticked word
+   canary expected	\ should first blue, then white, then green LED
+   check  ;
