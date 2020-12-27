@@ -1,4 +1,4 @@
-#!/bin/bash -f
+#!/bin/bash
 # description:  target compiler for the Automate threaded code VM.
 # dependencies: apart from the VM, additionally needed files are:
 #        primitives.list   -  a list of the VM code labels.
@@ -14,9 +14,11 @@
 # version is changed when VM, compiler or lib changes render programs incompatible.
 # Otherwise is subversion bumped. VM doesn't check for subversion.
 version="0.18"
-subversion="2"
+subversion="3"
 
-# 20201227ls 0.18.2   
+# 20201227ls 0.18.3
+# 	 fixed parsing *
+# 20201227ls 0.18.2
 #	 new name for array find: compiled. more informative error message.
 #	 a bit more error checking. added input parsing skip, arg, parse.
 #	 renamed "directive" to "interpreted", fixed setting precedence bit.
@@ -220,8 +222,10 @@ sdepth()  { hpush "${#s[@]}"; }
 
 # not a string stack operation:  works on line tail $l
 skip()  {
+#debug "1: $l"
    whitespace="${l%%[![:blank:]]*}"
    l="${l#$whitespace}"
+#debug "2: $l"
    return "${#l}"
 }
 
@@ -229,9 +233,12 @@ skip()  {
 # remove next white space delimited string from line tail,
 # return as tos.  no string stack involved.
 arg()  {
+#debug "1: [$l]"
    skip
    tos="${l%%[[:blank:]]*}"			# delimited string to tos
-   l="${l#$tos}"							# strip from command line tail
+#debug "2: [$tos]"
+   l="${l#"$tos"}"							# strip from command line tail
+#debug "3: [$l]"
    return "${#l}"
 }
 
@@ -729,7 +736,7 @@ compilefile()  {
       readarray -t src < "$file"                          # this way of reading input,
       nlines="${#src[@]}"
       line=0
-		for ((line=0; line<nlines;line++)); do		  
+		for ((line=0; line<nlines;line++)); do
          compileline "${src[line]}"
       done
    }
