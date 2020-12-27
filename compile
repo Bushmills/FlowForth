@@ -180,6 +180,7 @@ symbol()  {                                                 # is arg a defined s
 # compile a ref, either resolve immediately, or as forward ref
 href()  {
    ref="$1"
+#debug "ref=[$ref]"
    [[ -z "$ref" ]] && needname
    if  symbol "$ref"; then hcompile "$ref"                  # hcompile if resolvable symbol
    elif  number "$ref"; then hcompile "$ref"                # hcompile if number
@@ -677,11 +678,9 @@ inline()  {
    [[ "${arg:0:1}" == '"' ]] && { tos="${1#*'"'}"; spush "${tos%%'"'*}"; sliteral; return 0; }
 
 # a forward reference?
-   if (( compiling )); then
-      forwardref "$arg"                                  # compile as yet unresolved reference
-   else
-      error "not found: $arg"
-   fi
+   (( compiling )) && { forwardref "$arg"; return 0; }      # compile as yet unresolved reference
+   error "not found: $arg"
+   return 3
 }
 
 
