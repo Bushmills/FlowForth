@@ -1,11 +1,6 @@
 
-: main
-   1
-   2
-   swap
-   1
-   expected
-   2
-   expected
-   check
-;
+: main ( -- )
+   1 2 swap 
+   1 expected
+   2 expected
+   check  ;

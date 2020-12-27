@@ -1,15 +1,7 @@
 : main
-   10
-   20
-   30
-   depth
-   3
-   expected
-   30
-   expected
-   20
-   expected
-   10
-   expected
-   check
-;
+   10 20 30
+   depth 3 expected
+   30 expected
+   20 expected
+   10 expected
+   check  ;

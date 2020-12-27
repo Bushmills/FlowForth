@@ -1,22 +1,9 @@
 
-: main
-   false
-   if
-      123
-   else
-      456
-   then
-   456
-   expected
+: main ( -- )
+   false  if 123 else 456 then
+   456  expected
 
-   true
-   if
-      123
-   else
-      456
-   then
-   123
-   expected
+   true   if 123 else 456 then
+   123  expected
 
-   check
-;
+   check ;

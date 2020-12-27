@@ -1,22 +1,13 @@
-variable foo 123
-: main
-   246			# this value will be expected at the end
-			# it's here to show that it survives stack meddling
-   foo
-   @
-   123
-   expected
+create foo   123 ,
+here 1- constant there
+: main  ( -- )
+   246				\ this value will be expected at the end
+				\  it's here to show that it survives stack meddling
+   foo  @ 123 expected
+   foo  @ foo +!		\ adding contents of foo to foo
 
-   foo
-   @ 			# adding contents of foo to foo is like
-   foo			# multiplying it's contents with two.
-   +!			# doing that to avoid another literal identical to the canary
+   foo  @ expected
 
-   foo
-   @
-   expected
-
-   check
-;
-
-# what this check lacks is verification that the correct address was written to and read from.
+   there @  1 rshift
+   123 expected
+   check  ;

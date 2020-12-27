@@ -1,16 +1,9 @@
 
-: main
-   0
-   -3
-   begin
-      1+
-      ?dup
-   while
-      swap
-      1-
-      swap
+: main ( -- )
+   0 -3
+   begin 1+
+   ?dup while
+      swap 1- swap
    repeat
-   -2
-   expected
-   check
-;
+   -2 expected
+   check ;

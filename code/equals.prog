@@ -1,15 +1,4 @@
 : main
-   10
-   dup
-   =
-   true
-   expected
-
-   20
-   10
-   =
-   false
-   expected   
-
-   check
-;
+   10 dup =  true expected
+   20 10  =  false expected   
+   check ;

@@ -1,13 +1,6 @@
 
-: main
-   here				# read dictionary pointer
-   16
-   +
-
-   16
-   allot			# reserve 10 cells
-
+: main  ( -- )
    here
-   expected
-   check
-;
+   3 for 5 allot next
+   here 15 - expected
+   check  ;

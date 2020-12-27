@@ -1,16 +1,15 @@
 
 variable foo
+here 1- constant bar
+' foo >body constant baz
+
 
 : main
+   5 foo !
+   foo @
+   5 expected
 
-   5
-   foo
-   !
-
-   foo
-   @
-   5
-   expected
+   foo bar expected
+   foo baz expected
    check
 ;
-

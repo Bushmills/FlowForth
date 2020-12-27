@@ -1,22 +1,9 @@
 
 : main
-   123
-   false
-   if
-      drop
-      456
-   then
-   123
-   expected
+   123 false if drop 456 then
+   123 expected
 
-   123
-   true
-   if
-      drop
-      456
-   then
-   456
-   expected
+   123 true  if drop 456 then
+   456 expected
 
-   check
-;
+   check ;

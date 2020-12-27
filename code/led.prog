@@ -1,14 +1,8 @@
 
-: main
+: main ( -- )
    0
-   8
-   for
-      dup
-      led
-      32
-      +
+   8  for
+      dup led 32 +
    next
-   256
-   expected
-   check
-;
+   256 expected
+   check ;

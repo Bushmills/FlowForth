@@ -1,11 +1,8 @@
-constant green 65280
-constant canary 123
+65280 constant green
+123 constant canary
 
-: main
+: main ( -- )
    canary
-   green
-   led
-   canary
-   expected
-   check
-;
+   green led
+   canary expected
+   check  ;

@@ -1,57 +1,11 @@
-: main
-   5
-   10
-   <
-   -1
-   expected
-
-   100
-   60
-   <
-   0
-   expected
-
-   5
-   -5
-   <
-   0
-   expected
-
-   -10
-   5
-   <
-   -1
-   expected
-
-   -20
-   -10
-   <
-   -1
-   expected
-
-   -50
-   -80
-   <
-   0
-   expected
-
-   -1
-   0
-   <
-   -1
-   expected
-
-   0
-   0
-   <
-   0
-   expected
-
-   1
-   0
-   <
-   0
-   expected
-
-   check
-;
+: main  ( -- )
+     5  10 <   true expected
+   100  60 <  false expected
+     5  -5 <  false expected
+   -10   5 <   true expected
+   -20 -10 <   true expected
+   -50 -80 <  false expected
+    -1   0 <   true expected
+     0   0 <  false expected
+     1   0 <  false expected
+   check ;

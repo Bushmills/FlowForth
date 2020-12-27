@@ -1,13 +1,7 @@
 : main
+   123 foo
+   -123 expected
+   check ;
 
-   false
-   not
-   .
-
-   exit
-
-   true
-   not
-   .
-
-;
+: foo ( -- x )
+   negate exit 0= ;

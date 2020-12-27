@@ -1,18 +1,5 @@
-: main
-   10
-   0<
-   false
-   expected
-
-   -20
-   0<
-   true
-   expected
-
-   0
-   0<
-   false
-   expected
-
-   check  
-;
+: main ( -- )
+    10  0<  false  expected
+   -20  0<   true  expected
+     0  0<  false  expected
+   check ;

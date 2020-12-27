@@ -1,66 +1,17 @@
-constant red   2097152
-constant green 8192
-constant blue  32
+2097152 constant red
+   8192 constant green
+     32 constant blue
 
-: rainbow
-   7
-   for
-      red
-      -
-      green
-      +
-      dup
-      led      
-   next
-
-   7
-   for
-      green
-      -
-      blue
-      +
-      dup
-      led      
-   next
-
-   7
-   for
-      blue
-      -
-      red
-      +
-      dup
-      led      
-   next
+: rainbow ( -- )
+   7 for    red   -  green +  dup led    next
+   7 for    green -  blue  +  dup led    next
+   7 for    blue  -  red   +  dup led    next
 ;
 
 : main
-   1
-   dup
-   led
-
-   7
-   for
-      red
-      +
-      dup
-      led
-   next
-
-   2
-   for
-      rainbow
-   next
-
-   7
-   for
-      red
-      -
-      dup
-      led      
-   next
-
-   1
-   expected
-   check
-;
+   1 dup led
+   7 for red + dup led next
+   2 for rainbow next
+   7 for red - dup led next
+   1 expected
+   check ;

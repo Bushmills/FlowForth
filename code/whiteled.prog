@@ -1,13 +1,4 @@
-constant white -1
-
-: main
-   123
-
-   4214784
-   colour
-
-   led
-   123
-   expected
-   check
-;
+: main  ( -- )  
+  123	white led
+  123 expected
+ check  ;

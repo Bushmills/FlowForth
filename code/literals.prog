@@ -1,15 +1,5 @@
 
-: main
-   10
-   5
-   +
-   dup
-   15
-   expected
-
-   1-
-   14
-   expected
-
-   check
-;
+: main ( -- )
+   10 5 +    dup 15  expected
+   1-            14  expected
+   check  ;

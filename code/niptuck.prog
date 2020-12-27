@@ -1,14 +1,7 @@
-: main
-   10
-   20
-   30
-   nip
-   tuck
-   30
-   expected
-   10
-   expected
-   30
-   expected
-   check
-;
+: main ( -- )
+   10 20 30
+   nip tuck
+   30 expected
+   10 expected
+   30 expected
+   check ;

@@ -1,11 +1,6 @@
-: main
-   38
-   5
-   /mod
-   3
-   expected
-   int		# result is float
-   7
-   expected	
-   check	# enjoy red LED
-;
+: main ( -- )
+   38 5  /mod
+   3 expected
+   int		\ result is float
+   7 expected	
+   check  ;

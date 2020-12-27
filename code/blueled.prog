@@ -1,7 +1,5 @@
-constant blue 255
+255 constant blue
 
-: main
-   blue
-   led
-   check
+: main ( -- )
+   blue led check
 ;

@@ -1,15 +1,8 @@
 : main
    0
-   4
-   for
-      2
-      +
-      3
-      for
-         1+
-      next
+   2 for
+      5 -
+      3 for 3 + next
    next
-   20
-   expected	# 8 incs by outer, 12 by inner loop
-   check
-;
+   8 expected		\ 10 decs by outer, 18 incs by inner loop
+   check ;

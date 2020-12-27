@@ -1,36 +1,13 @@
 
-: main
-  100
-  foo1
-  600
-  expected
-  500
-  expected
-  400
-  expected
-  300
-  expected
-  200
-  expected
-  100
-  expected
+: main ( -- )
+  100  foo1  600  expected
+             500  expected
+             400  expected
+             300  expected
+             200  expected
+             100  expected
+  check ;
 
-  check
-;
-
-: foo1
-  200
-  foo2
-  600
-;
-
-: foo2
-  300
-  foo3
-  500
-;
-
-: foo3
-  400
-  noop
-;
+: foo1 ( -- x1 x2 x3 x4 x5 ) 200 foo2 600 ;
+: foo2  ( -- x1 x2 x3 )      300 foo3  500 ;
+: foo3  ( -- x )             400 noop ;

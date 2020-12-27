@@ -1,36 +1,15 @@
 
-: main
+: main  ( -- )
+   5  10 
+   2dup min  5  expected
+        max 10  expected
 
-   5
-   10
-   2dup
-   min
-   5
-   expected
+   -5  5
+   2dup min -5  expected
+        max  5  expected
 
-   max
-   10
-   expected
+   -10 -5
+   2dup min -10  expected
+        max  -5  expected
 
-   -5
-   5
-   2dup
-   min
-   -5
-   expected
-   max
-   5
-   expected
-
-   -10
-   -5
-   2dup
-   min
-   -10
-   expected
-   max		
-   -5
-   expected
-
-   check
-;
+   check ;

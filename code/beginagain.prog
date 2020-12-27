@@ -1,26 +1,17 @@
 
-constant white -1
-constant black 1
+1 constant black
 
-: main
+: main ( -- )
    beginagain
-   123
-   expected
-   check
-;
+   123 expected
+   check  ;
 
 : beginagain
    123
    5
    begin
-      white
-      led
-      black
-      led
-
-      1-
-      ?dup
-      0=	# breakout condition      
-      ?exit
+      white led
+      black led
+      1- ?dup 0= ?exit		\ breakout condition      
    again
 ;

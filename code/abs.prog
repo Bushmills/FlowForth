@@ -1,14 +1,5 @@
 
-: main
-   -5
-   abs
-   5
-   expected
-
-   3
-   abs
-   3
-   expected
-
-   check
-;
+: main  ( -- )
+   -5 abs   5  expected
+   3 abs    3 expected
+   check ;

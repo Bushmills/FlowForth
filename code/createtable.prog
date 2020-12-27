@@ -1,41 +1,19 @@
-include includefile1.inc
 
-create foo
- 666
- ,
-
-: ,
-   here
-   !
-   1
-   allot
-;
+create foo   666 ,
 
 create palet
-  green
-  ,
-  red
-  ,
-  blue
-  ,
-  dark
-  ,
-
+  green ,
+  red   ,
+  blue  ,
+  dark  ,
 
 : main
-   20
-   begin
-      ?dup
+   123
+   20 begin ?dup
    while
-      1-
-      dup
-      3
-      and
-      palet
-      +
-      @
-      led
+      1- dup 3 and
+      palet + @ led
    repeat
-   dark
-   led
-;
+   dark led
+   123 expected
+   check  ;

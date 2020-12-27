@@ -1,24 +1,7 @@
 : main
-   6
-   3
-   2dup
-   and
-   2
-   expected
-
-   2dup
-   or
-   7
-   expected
-
-   xor
-   5
-   expected
-
-   255
-   invert
-   -256
-   expected
-
-   check
-;
+   6 3
+   2dup and    2 expected
+   2dup  or    7 expected
+   2dup xor    5 expected
+   invert -   10 expected
+   check ;

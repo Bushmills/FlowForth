@@ -1,7 +1,1 @@
-constant black 1
-
-: main
-   black
-   led
-   check
-;
+: main   dark led ;

@@ -1,8 +1,2 @@
-# VM test:  three primitives
-: main
-  noop
-  noop
-  noop
-;
-end
-words
+\ VM test:  three primitives
+: main  noop noop noop ;

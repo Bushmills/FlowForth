@@ -1,20 +1,9 @@
 
-: main
-   1
-   2
-   3
-   over
-   2
-   expected
-   3
-   expected
-   over
-   1
-   expected
-   2
-   expected
-   1
-   expected
-
-   check
-;
+: main  ( -- )
+   1 2 3
+   over 2  expected
+        3  expected
+   over 1  expected
+        2  expected
+        1  expected
+   check ;
