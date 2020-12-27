@@ -1,0 +1,8 @@
+: main  ( -- )
+  123
+  "this is a string literal"  
+  50 + 
+  type 
+  173 expected
+  check  
+;
