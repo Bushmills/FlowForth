@@ -1,0 +1,4 @@
+: main ( -- )
+	$ff  $10  -
+        239 expected
+ 	check ;

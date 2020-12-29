@@ -1,25 +1,10 @@
 : main
+   [ 123 ] literal	\ suspend compilation, resume compilation, compile interpreted number into target program
+   123 expected
 
-   [
-      "here_when_compiled_first_time:_"
-      type
-      here
-      dup
-      .
-\    watch the toasts when running the program
-   ]
-   literal
-   .
-
-   [
-      "here_when_compiled_second_time:_"
-      type
-      here
-      dup
-      .
-\     watch the toasts when running the program
-   ]
-   literal
-   .
-
-;
+   [  2 ]      2
+   [  3 ]      3
+   [  5 ]      5
+   [ * + ]    * +
+   literal expected
+   check ;

@@ -1,0 +1,10 @@
+: main
+ "for next start" type
+ 10000 for next		\ for getting a feel of execution speed
+ "begin until start" type
+ 10000 begin  1-  ?dup 0= until
+ "begin while repeat start" type
+ 10000 begin ?dup while 1- repeat
+ "begin while repeat end" type
+;
+end

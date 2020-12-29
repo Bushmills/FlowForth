@@ -1,20 +1,20 @@
 : main
    3 5 4 */		\ returns 3.75
-   int  3 expected
+   3 expected
 
    -3 5 4 */		\ returns -3.75
-   int	-4 expected	\ floored
+   -4 expected		\ -3 obtained
 
    3 -5 4  */		\ returns -3.75
-   int -4 expected	\ floored
+   -4 expected		\ -6 obtained
 
    3 5 -4  */		\ returns -3.75
-   int -4 expected	\ floored
+   -4 expected		\ -6 obtained
 
    -3  5 -4 */		\ returns 3.75
-   int 3 expected
+   3 expected		\ 6 obtained
 
    -3 -5 -4 */		\ returns -3.75
-   int -4 expected	\ floored
+   -4 expected		\ -3 obtained
 
    check ;

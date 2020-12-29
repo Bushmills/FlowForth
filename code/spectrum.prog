@@ -1,17 +1,16 @@
-2097152 constant red
-   8192 constant green
-     32 constant blue
-
-: rainbow ( -- )
-   7 for    red   -  green +  dup led    next
-   7 for    green -  blue  +  dup led    next
-   7 for    blue  -  red   +  dup led    next
-;
+16 constant steps
+red steps / constant somered
+green steps / constant somegreen
+blue steps / constant someblue
 
 : main
-   1 dup led
-   7 for red + dup led next
-   2 for rainbow next
-   7 for red - dup led next
-   1 expected
+    0 0
+    1000 for
+       over 3 mod 0=   someblue and +
+       over 5 mod 0=  somegreen and +
+       over 7 mod 0=  somered  and +
+       dup led
+       swap 1+ swap
+    next
+    2drop
    check ;

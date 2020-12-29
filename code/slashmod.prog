@@ -1,6 +1,5 @@
 : main ( -- )
    38 5  /mod
-   3 expected
-   int		\ result is float
-   7 expected	
+   7 expected
+   3 expected	
    check  ;

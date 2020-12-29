@@ -1,13 +1,13 @@
-
-1 constant black
-
+$deadbeef constant canary
+ 1 constant black
+-1 constant white
 : main ( -- )
    beginagain
-   123 expected
+   canary expected
    check  ;
 
 : beginagain
-   123
+   canary
    5
    begin
       white led

@@ -1,7 +1,3 @@
-: mod ( n1 n2 -- n )		\ n1%n2
-   /mod nip
-;
-
 : main
    5 3 mod
    2 expected
