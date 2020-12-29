@@ -42,6 +42,6 @@ point, though it's hard to speak of "useful" with such a project. It's
 fun though, trying to run Forth on another rather unlikely platform.
 
 Goal and purpose of the Flowforth VM was to give me a kickstart into
-the Automate tool: As former Automagic (a similar automation app which
+the Automate tool: As former [Automagic](https://automagic4android.com) (a similar automation app which
 isn't maintained any longer) user I needed an alternative, and to get
 familiar with it quickly.
