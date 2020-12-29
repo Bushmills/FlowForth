@@ -18,7 +18,7 @@ The LED turning green indicates a successfully accomplished test.
 
 For output and debugging, type and . are provided. There an inkling of
 console I/O now, witnessed by files stdin.txt (read by query) and stdout.txt
-(type and . write to that file, besides pushing a toast. To interface these
+(type and . write to that file, besides pushing a toast). To interface these
 files with a terminal, pushing their contents through MQTT upon change (stdout.txt)
 or writing to when an MQTT message is received (stdin.txt) is considered.
 
