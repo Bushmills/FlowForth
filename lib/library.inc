@@ -41,13 +41,24 @@
    dup if dup then
 ;
 
-: 1+ ( x1 -- x2 )		\ increment tos by one
-   1 +
-;
+: =   ( x1 x2 -- f )  -  0= ;   \ equal comparison
+: <>  ( x1 x2 -- f )  =  0= ;	\ unequal comparison
+: >   ( n1 n2 -- f )  swap  < ;	\ signed greater than comparison
+: >=  ( n1 n2 -- f )  < 0=  ;	\ signed greater or equal comparison
+: <=  ( n1 n2 -- f )  >  0= ;	\ signed less or equal comparison
 
-: 1- ( x1 -- x2 )		\ decrement tos by one
-   -1 +
-;
+: 1+ ( x1 -- x2 )   1 +   ;    	\ increment tos by one
+: 1- ( x1 -- x2 )   1 -   ;    	\ decrement tos by one
+: *  ( n1 n2 -- n ) 1 */  ;
+: /  ( n1 n2 -- n )  /mod nip ;
+: mod ( n1 n2 -- n ) /mod drop ;
+
+: min ( n1 n2 -- n )		\ keep smaller of two signed numbers
+   2dup > if swap then drop ;
+
+: max ( n1 n2 -- n )            \ keep greater of two signed numbers
+   2dup < if swap then drop ;
+
 
 
 \ this is a very inefficient, but functional implementation of a for...next loop.
@@ -77,27 +88,14 @@
 \ one level above was called.
 
 
-: <>  ( x1 x2 -- f )  =  0= ;	\ unequal comparison
-: >   ( n1 n2 -- f )  swap  < ;	\ signed greater than comparison
-: >=  ( n1 n2 -- f )  < 0=  ;	\ signed greater or equal comparison
-: <=  ( n1 n2 -- f )  >  0= ;	\ signed less or equal comparison
-
-
-: min ( n1 n2 -- n )		\ keep smaller of two signed numbers
-   2dup > if swap then drop ;
-
-: max ( n1 n2 -- n )            \ keep greater of two signed numbers
-   2dup < if swap then drop ;
-
-
 \ led colours
 	1 constant dark
- 16711680 constant red
-    65280 constant green
-      255 constant blue
-  8388352 constant yellow
-    32767 constant cyan
-  2031871 constant magenta
+  $ff0000 constant red
+  $00ff00 constant green
+  $0000ff constant blue
+  $ffff00 constant yellow
+  $00ffff constant cyan
+  $ff00ff constant magenta
        -1 constant white
 
 : colour  ( r g b -- x )	\ mix led colour from red,green,blue
@@ -110,12 +108,17 @@
 create errors 0 ,
 
 : expected  ( x1 x2 -- )	\ mismatch count
-   <> negate errors +!
+   2dup <> if
+      2dup . .
+      1 errors +!
+   then
+   2drop
 ;
 
 : check ( -- )			\ mismatch evaluation
    dark led
-   depth errors @ or
+   depth dup if "stack bad" type then
+   errors @ or
    green			\ assume no error
    swap if drop red then	\ wrong assumption
    led
