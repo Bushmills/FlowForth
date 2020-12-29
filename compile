@@ -4,18 +4,18 @@
 #        primitives.list   -  a list of the VM code labels.
 #        library.inc    -  extensions and cold start entry point.
 
-# problems found:
-#   empty lines with white spaces rather than just linefeeds cause compilation error
-
 # bumping version number requires change to VM too:
 # generated programs contain this version. VM compares it against its own version,
 # which must be identical. This prevents execution of programs not compatible with
 # the VM any longer or have never been.
 # version is changed when VM, compiler or lib changes render programs incompatible.
-# Otherwise is subversion bumped. VM doesn't check for subversion.
-version="0.18"
-subversion="4"
+# For other changes, bump subversion. VM doesn't check for subversion.
+version="0.19"
+subversion="0"
 
+# 20201227ls 0.19.0
+#   added hex number literals ( $xxxx )
+#   first go at std io: added file monitor for stdin, writing to stdout
 # 20201227ls 0.18.4
 #   fixed string literals
 # 20201227ls 0.18.3
@@ -154,8 +154,7 @@ code="${program%.*}.$codeext"                               # change extension o
 sources="$library $program"                                # files included by compiler run
 
 
-### --- subroutines ---
-
+### --- subroutines: general ---
 title()     { printf -- '--- %s ---\n' "$1"; }
 
 hcompile()  {
@@ -169,14 +168,28 @@ forwardref()  {                                             # by compiling the s
    hcompile "$arg"                                          # them.
 }
 
-number()  {                                                 # is arg a valid number?
+
+
+### --- subroutines: input classifiers ---
+isnumber()  {                                                 # is arg a valid number?
    [[ -z "${1//[0-9+-]/}" ]]                                # a bit simplistic, can be cheated easily
 }
 
-symbol()  {                                                 # is arg a defined symbol?
+issymbol()  {                                                 # is arg a defined symbol?
    [[ -z "$1" ]] && needname
    [[ -n "${symbol[$1]}" ]]
 }
+
+ishexnumber()  {
+    [[ "${1:0:1}" == '$' ]] || return 1
+    n="${1:1}"
+    [[ -z "${n//[0-9a-f]/}" ]]
+}
+
+isinterpreted()  { [[ -n "${interpreted["$1"]}" ]]; }
+isword()       { [[ -n "${compiled["$1"]}" ]]; }
+isimmediate()  { (( ${headerflag["$1"]:=0} & immediate )); }
+
 
 
 # compile a ref, either resolve immediately, or as forward ref
@@ -184,13 +197,14 @@ href()  {
    ref="$1"
 #debug "ref=[$ref]"
    [[ -z "$ref" ]] && needname
-   if  symbol "$ref"; then hcompile "$ref"                  # hcompile if resolvable symbol
-   elif  number "$ref"; then hcompile "$ref"                # hcompile if number
+   if  issymbol "$ref"; then hcompile "$ref"                  # hcompile if resolvable symbol
+   elif  isnumber "$ref"; then hcompile "$ref"                # hcompile if number
    else forwardref "$ref"                                   # forwardref if neither number nor resolvable symbol
    fi
 }
 
 
+# --- numeric host stack ---
 hpush()  {
    hdepth="${#h[@]}"
    h[hdepth]="$1"
@@ -204,25 +218,18 @@ hpop()  {                                                   # host pop: move top
 }
 
 
+# --- string stack ---
 # interface to directives and words which aren't yet string stack converted:
 # copy top string stack element to variable tos (where it can serve as argument)
-speek()  {
-   tos="${s[@]:0 -1}"
-}
+speek()  { tos="${s[@]:0 -1}"; }
+spush()  { sdepth="${#s[@]}"; s[sdepth]="$@"; }
+spop()   { sdepth="${#s[@]}"; speek; unset "s[sdepth-1]"; }	# host string pop: move top string stack element to tos
+sdup()   { spush "${s[@]:0 -1}"; }
+sdepth() { hpush "${#s[@]}"; }
 
 
-spush()  {
-   sdepth="${#s[@]}"
-   s[sdepth]="$@"
-}
 
-
-# host string pop: move top string stack element to tos
-spop()    { sdepth="${#s[@]}"; speek; unset "s[sdepth-1]"; }
-sdup()    { spush "${s[@]:0 -1}"; }
-sdepth()  { hpush "${#s[@]}"; }
-
-
+# --- input parsing ---
 # not a string stack operation:  works on line tail $l.
 # trims leading whitesp.   rename to  minleading (-leading)
 skip()  {
@@ -308,12 +315,12 @@ interpreted "dup"   "dup";      dup()       { hpush "${h[@]:0 -1}"; }
 interpreted "drop"  "hpop"
 interpreted "swap"  "swap";     swap()      { hpop; hpop; hpush "$nos"; hpush "$tos"; }
 interpreted "over"  "over";     over()      { hpush "${h[@]:0 -2:1}"; }
-interpreted "nip"   "nip";      nip()       { swap; drop; }
+interpreted "nip"   "nip";      nip()       { swap; hpop; }
 interpreted "tuck"  "tuck";     tuck()      { swap; over; }
 interpreted "?dup"  "qdup";     qdup()      { hpop; (( tos )) && hpush "$tos"; }
 interpreted "depth" "depth";    depth()     { hpush "${#h[@]}"; }
 interpreted "2dup"  "twodup";   twodup()    { over; over; }
-interpreted "2drop" "twodrop";  twodrop()   { drop; drop; }
+interpreted "2drop" "twodrop";  twodrop()   { hpop; hpop; }
 
 interpreted "sdup"  "sdup"
 interpreted "sdrop" "spop"
@@ -352,13 +359,13 @@ interpreted ","     "comma";    comma()     { hpop; hcompile "$tos"; }
 #  --- host (exec) arithmethics
 interpreted "*/"    "starslash";starslash() { hpop; hpop; hdepth="${#h[@]}"; h[hdepth-1]="$(( h[hdepth-1] * tos / nos ))"; }
 interpreted "/mod" "slashmod";  slashmod()  { hpop; hpop; hpush $(( tos % nos )); hpush $(( tos / nos )); }
-interpreted "+"     "plus";     plus()      { hpop; hpop; hpush $(( tos + nos )); }
 interpreted "1+"    "oneplus";  oneplus()   { hpop; hpush $(( tos + 1 )); }
 interpreted "1-"    "oneminus"; oneminus()  { hpop; hpush $(( tos - 1 )); }
+interpreted "+"     "plus";     plus()      { hpop; hpop; hpush $(( tos + nos )); }
 interpreted "-"     "minus";    minus()     { hpop; hpop; hpush $(( tos - nos )); }
 interpreted "*"     "mul";      mul()       { hpush 1; starslash; }
 interpreted "/"     "div";      div()       { slashmod; nip; }
-interpreted "mod"   "mod";      mod()       { slashmod; drop; }
+interpreted "mod"   "mod";      mod()       { slashmod; hpop; }
 interpreted "negate" "negate";  negate()    { hpop; hpush $(( -tos )); }
 interpreted "abs"   "abs";      abs()       { hpop; hpush $(( ${tos#-} )); }
 interpreted "min"   "min";      min()       { hpop; hpop; (( nos < tos )) && hpush "$nos" || hpush "$tos"; }
@@ -666,16 +673,24 @@ hcompile "$((10#${version//./}))"                           # store version numb
 l="dp end"; variable    			                           # let target know where code ends
 
 # --- compiler and interpret helpers
-isinterpreted()  { [[ -n "${interpreted["$1"]}" ]]; }
-isword()       { [[ -n "${compiled["$1"]}" ]]; }
-isimmediate()  { (( ${headerflag["$1"]:=0} & immediate )); }
-
 
 # interpret or compile lines containing literals
 inline()  {
    arg="$1"
-# not an instruction. is it a number?
-   number "$arg" && { hpush "$arg"; literal; return 0; }
+# not an instruction. is it a (decimal) number?
+   isnumber "$arg" && {
+      hpush "$arg"
+      literal
+      return 0
+}
+
+# not a decimal number. is it a hex number?
+   ishexnumber "$arg" && {
+   	hpush "$((16#${arg:1}))"
+	   literal
+   	return 0
+   }
+
 
 # a string?
    [[ "${arg:0:1}" == '"' ]] && {
@@ -752,7 +767,6 @@ compilefile()  {
       done
    }
 }
-
 
 
 ended=0                                                     # detection for "end" in source
