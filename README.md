@@ -31,8 +31,10 @@ Previously generated trace files have been disabled now.
 
 The [VM](https://llamalab.com/automate/community/flows/37943)
 is no performance monster, but seems quick enough to attempt
-porting a complete interpreter to it. It runs about 10000 empty loops per
-second.
+porting a complete interpreter to it. It runs about 5000 to 10000
+empty loops per second on my phone, which puts it into the performance
+class of my [Bashforth)(https://github.com/Bushmills/Bashforth) interpreter
+which shows a rather acceptable interactive performance.
 
 Currently are [programs](https://github.com/Bushmills/FlowForth/blob/master/code)
 for the [VM](https://llamalab.com/automate/community/flows/37943)
