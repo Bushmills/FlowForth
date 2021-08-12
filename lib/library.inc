@@ -7,7 +7,8 @@
 
  0 constant false 
 -1 constant true
-
+ 1 constant cell
+	 
 : here  ( -- a )  		\ read dictionary pointer
    dp @				\ dp is a variable, containing the dictionary pointer
 ;
@@ -17,8 +18,7 @@
 ;
 
 : ,  ( x -- )			\ store a number at here, allocate space
-  here !
-  1 allot
+  here cell allot !
 ;
 
 : nip ( x1 x2 -- x2 )		\ remove second from top stack item
